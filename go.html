@@ -3,43 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Настройка VPN...</title>
+    <title>Rocket VPN Redirect</title>
     <script>
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
-            // Получаем конфиг. Браузер сам декодирует один уровень.
             let config = urlParams.get('config');
             
-            if (config) {
-                // Если ссылка почему-то обрезалась на решетке в URL (бывает в старых браузерах),
-                // мы берем хвост из window.location.hash
-                if (window.location.hash && !config.includes('#')) {
-                    config += window.location.hash;
-                }
-
-                // 1. Попытка открыть напрямую (для v2rayNG / V2Box)
-                window.location.href = config;
-                
-                // 2. Запасной вариант для V2Box через 1.2 сек
-                setTimeout(() => {
-                    window.location.href = "v2box://install-config?url=" + encodeURIComponent(config);
-                }, 1200);
-                
-                // Закрыть окно через 5 сек
-                setTimeout(() => { window.close(); }, 5000);
-            } else {
+            if (!config) {
                 document.body.innerHTML = "<h3 style='color:white'>Ошибка: Конфиг не найден</h3>";
+                return;
             }
+
+            // Обработка якоря (#), если он потерялся
+            if (window.location.hash && !config.includes('#')) {
+                config += window.location.hash;
+            }
+
+            // 1. Прямая попытка (отлично работает на iOS)
+            window.location.href = config;
+
+            // 2. Логика специально для Android (Intent)
+            // Если через 500мс мы все еще на этой странице, пробуем Intent
+            setTimeout(() => {
+                if (navigator.userAgent.toLowerCase().indexOf("android") > -1) {
+                    // Формируем Intent-ссылку, которую Android не сможет игнорировать
+                    const rawConfig = config.replace("vless://", "");
+                    const intentUrl = "intent://" + rawConfig + "#Intent;scheme=vless;package=com.v2ray.ang;end";
+                    window.location.href = intentUrl;
+                }
+            }, 500);
+
+            // 3. Запасной вариант для V2Box (iOS/Android)
+            setTimeout(() => {
+                window.location.href = "v2box://install-config?url=" + encodeURIComponent(config);
+            }, 1200);
+            
+            // 4. Кнопка "ручного" запуска, если авто-переход заблокирован
+            setTimeout(() => {
+                document.getElementById('manual-link').style.display = 'block';
+                document.getElementById('loader').style.display = 'none';
+            }, 3000);
         };
     </script>
     <style>
-        body { background: #0f0c29; color: white; font-family: sans-serif; text-align: center; padding-top: 100px; }
-        .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #00dfd8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        body { background: #0f0c29; color: white; font-family: sans-serif; text-align: center; padding-top: 80px; }
+        .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #00dfd8; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn { display: none; background: #00dfd8; color: #0f0c29; padding: 15px 25px; text-decoration: none; border-radius: 10px; font-weight: bold; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <div class="spinner"></div>
-    <p>Передаем настройки в приложение...</p>
+    <div id="loader">
+        <div class="spinner"></div>
+        <p>Настраиваем ваш VPN...</p>
+    </div>
+
+    <a href="javascript:void(0)" onclick="location.reload()" class="btn" id="manual-link">
+        ОТКРЫТЬ ПРИЛОЖЕНИЕ ВРУЧНУЮ
+    </a>
 </body>
 </html>
