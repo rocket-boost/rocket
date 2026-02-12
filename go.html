@@ -6,59 +6,51 @@
     <title>Rocket VPN - Подключение</title>
     <style>
         body { background: #0f0c29; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
-        .loader { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #00dfd8; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        h2 { font-size: 18px; color: #00dfd8; padding: 0 20px; }
-        .manual-btn { display: none; margin-top: 20px; color: #00dfd8; text-decoration: none; border: 1px solid #00dfd8; padding: 12px 20px; border-radius: 12px; font-weight: bold; }
+        .loader-box { padding: 20px; }
+        .btn-choice { display: block; background: #00dfd8; color: #0f0c29; padding: 15px 25px; text-decoration: none; border-radius: 12px; font-weight: bold; margin: 10px auto; width: 250px; }
+        .btn-happ { background: #f093fb; }
+        h2 { font-size: 18px; color: #fff; margin-bottom: 25px; }
+        .hint { font-size: 12px; opacity: 0.6; margin-top: 20px; }
     </style>
 </head>
 <body>
 
     <div class="loader-box">
-        <div class="loader"></div>
-        <h2 id="status">Запуск v2Box...</h2>
-        <a href="#" id="btn-manual" class="manual-btn">НАЖМИ ДЛЯ ИМПОРТА</a>
+        <h2 id="status">Выберите ваше приложение:</h2>
+        
+        <a href="#" id="happ-link" class="btn-choice btn-happ">ОТКРЫТЬ В HAPP</a>
+        
+        <a href="#" id="v2box-link" class="btn-choice">ОТКРЫТЬ В V2BOX</a>
+
+        <p class="hint">Если приложение установлено, импорт начнется автоматически после нажатия.</p>
     </div>
 
     <script>
-        function launch() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const base64Config = urlParams.get('enc');
+        const urlParams = new URLSearchParams(window.location.search);
+        const base64Config = urlParams.get('enc');
+        
+        if (base64Config) {
+            const vlessLink = atob(base64Config);
             
-            if (!base64Config) {
-                document.getElementById('status').innerText = "Ошибка: Ключ не найден";
-                return;
+            // Ссылки для разных приложений
+            const v2boxUrl = "v2box://install-config?url=" + encodeURIComponent(vlessLink);
+            const happUrl = "happ://import/" + vlessLink; // Happ понимает прямую ссылку без кодирования всего URL
+
+            document.getElementById('v2box-link').href = v2boxUrl;
+            document.getElementById('happ-link').href = happUrl;
+
+            // Авто-попытка открыть (сначала пробуем Happ, так как он стабильнее)
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            if (isAndroid) {
+                window.location.href = happUrl;
+                // Если через секунду не ушли с сайта, пробуем v2box
+                setTimeout(() => { window.location.href = v2boxUrl; }, 1000);
+            } else {
+                window.location.href = v2boxUrl;
             }
-
-            // Декодируем аккуратно
-            let vlessLink;
-            try {
-                vlessLink = atob(base64Config);
-            } catch (e) {
-                document.getElementById('status').innerText = "Ошибка ключа";
-                return;
-            }
-            
-            const configUrl = "v2box://install-config?url=" + encodeURIComponent(vlessLink);
-            const btnManual = document.getElementById('btn-manual');
-            btnManual.href = configUrl;
-
-            // Для Android пробуем сначала прямой вызов схемы
-            // Это часто лечит "тайм-аут", так как Intent иногда перегружает приложение данными
-            window.location.href = configUrl;
-
-            // Если через 1.5 секунды ничего не произошло, показываем кнопку
-            setTimeout(() => {
-                document.getElementById('status').innerHTML = "Почти готово!<br>Нажми кнопку ниже для завершения:";
-                btnManual.style.display = "inline-block";
-                
-                // Вторая попытка для Android через Intent (если схема не сработала)
-                const intentUrl = `intent://install-config?url=${encodeURIComponent(vlessLink)}#Intent;scheme=v2box;package=com.v2box.android;end`;
-                window.location.href = intentUrl;
-            }, 1500);
+        } else {
+            document.getElementById('status').innerText = "Ошибка: Ключ не найден";
         }
-
-        window.onload = launch;
     </script>
 </body>
 </html>
