@@ -3,68 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocket VPN Redirect</title>
-    <script>
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            let config = urlParams.get('config');
-            
-            // ИСПРАВЛЕНИЕ: Собираем конфиг, если часть после # отвалилась в хеш страницы
-            if (config && window.location.hash) {
-                config += window.location.hash;
-            }
-
-            if (!config || config.trim() === "") {
-                document.getElementById('status-text').innerHTML = "Ошибка: Конфиг не найден в URL";
-                document.getElementById('loader').style.display = 'none';
-                return;
-            }
-
-            // Настраиваем кнопку ручного запуска сразу
-            const manualBtn = document.getElementById('manual-link');
-            manualBtn.href = config;
-
-            // 1. Попытка открыть напрямую (V2RayNG, Streisand, Shadowrocket)
-            window.location.href = config;
-
-            // 2. Логика для Android (Intent) - через 500мс
-            setTimeout(() => {
-                if (navigator.userAgent.toLowerCase().indexOf("android") > -1) {
-                    // Используем универсальную схему для v2rayNG
-                    const intentUrl = "intent://" + config.replace("vless://", "") + "#Intent;scheme=vless;package=com.v2ray.ang;end";
-                    window.location.href = intentUrl;
-                }
-            }, 600);
-
-            // 3. Запасной вариант для V2Box (iOS/Android) - через 1.2сек
-            setTimeout(() => {
-                // Важно: V2Box требует кодированную ссылку внутри параметра url
-                window.location.href = "v2box://install-config?url=" + encodeURIComponent(config);
-            }, 1200);
-            
-            // 4. Показываем кнопку, если ничего не сработало авто-переходом
-            setTimeout(() => {
-                manualBtn.style.display = 'inline-block';
-                document.getElementById('loader').style.display = 'none';
-            }, 3000);
-        };
-    </script>
+    <title>Rocket VPN</title>
     <style>
-        body { background: #0f0c29; color: white; font-family: sans-serif; text-align: center; padding-top: 80px; }
-        .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #00dfd8; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        body { background: #0f0c29; color: white; font-family: sans-serif; text-align: center; padding-top: 50px; margin: 0; }
+        .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #00dfd8; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .btn { display: none; background: #00dfd8; color: #0f0c29; padding: 15px 25px; text-decoration: none; border-radius: 10px; font-weight: bold; margin-top: 20px; transition: 0.3s; }
-        .btn:hover { background: #00f0e9; transform: scale(1.05); }
+        .btn { display: inline-block; background: #00dfd8; color: #0f0c29; padding: 15px 25px; text-decoration: none; border-radius: 10px; font-weight: bold; margin-top: 20px; }
+        #error-msg { color: #ff4d4d; display: none; padding: 20px; }
     </style>
 </head>
 <body>
+
     <div id="loader">
         <div class="spinner"></div>
-        <p id="status-text">Настраиваем ваш VPN...</p>
+        <p>Подключаем VPN...</p>
     </div>
 
-    <a href="#" class="btn" id="manual-link">
-        ОТКРЫТЬ ПРИЛОЖЕНИЕ ВРУЧНУЮ
-    </a>
+    <div id="error-msg">
+        <h3>Ошибка: Ссылка не получена</h3>
+        <p>Убедитесь, что вы передали параметр ?config=</p>
+    </div>
+
+    <a href="#" id="manual-btn" class="btn" style="display: none;">ОТКРЫТЬ ПРИЛОЖЕНИЕ</a>
+
+    <script>
+        function launch() {
+            // 1. Пытаемся достать конфиг всеми способами
+            const fullUrl = window.location.href;
+            let config = "";
+
+            if (fullUrl.includes("config=")) {
+                config = fullUrl.split("config=")[1];
+            }
+
+            if (!config || config.length < 10) {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('error-msg').style.display = 'block';
+                return;
+            }
+
+            // Декодируем на случай, если ссылка была зашифрована
+            config = decodeURIComponent(config);
+
+            const manualBtn = document.getElementById('manual-btn');
+            manualBtn.href = config;
+            manualBtn.style.display = 'inline-block';
+
+            // 2. Попытка открыть (VLESS прямая)
+            window.location.href = config;
+
+            // 3. Через 1 секунду — попытка для V2Box
+            setTimeout(() => {
+                window.location.href = "v2box://install-config?url=" + encodeURIComponent(config);
+            }, 1000);
+
+            // 4. Через 2 секунды — Intent для Android (v2rayNG)
+            setTimeout(() => {
+                if (navigator.userAgent.toLowerCase().indexOf("android") > -1) {
+                    const intentUrl = "intent://" + config.replace("vless://", "") + "#Intent;scheme=vless;package=com.v2ray.ang;end";
+                    window.location.href = intentUrl;
+                }
+            }, 2000);
+        }
+
+        // Запуск при загрузке
+        window.onload = launch;
+    </script>
 </body>
 </html>
