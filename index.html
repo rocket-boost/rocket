@@ -81,22 +81,22 @@
             
             const appStoreUrl = "https://apps.apple.com/us/app/v2raytun/id6476628951?l=ru";
             
-            // Специальная схема для V2rayTun, чтобы он гарантированно открылся
-            // Мы пробуем сначала прямой импорт через схему приложения
-            const deepLink = "v2raytun://import/" + vlessLink;
+            // Прямая команда импорта для V2rayTun
+            const importLink = "v2raytun://import/" + vlessLink;
             
-            // Фикс для iOS: используем скрытый iframe или прямой переход
-            let lastTime = Date.now();
-            window.location.href = deepLink;
+            // 1. Пытаемся открыть через прямую ссылку
+            window.location.href = importLink;
 
-            // Если приложение не открылось за 2 секунды (фокус страницы не потерян)
+            // 2. Ставим таймер на проверку, ушли ли мы со страницы
+            let start = Date.now();
             setTimeout(() => {
-                if (Date.now() - lastTime < 3000) {
-                    tg.showConfirm("Открыть страницу установки в App Store?", (ok) => {
+                // Если мы все еще видим страницу и прошло мало времени (приложение не открылось)
+                if (document.visibilityState === 'visible' && (Date.now() - start < 3500)) {
+                    tg.showConfirm("Приложение V2rayTun не открылось. Перейти в App Store?", (ok) => {
                         if (ok) tg.openLink(appStoreUrl);
                     });
                 }
-            }, 2000);
+            }, 3000);
         }
 
         function openTariffModal() { document.getElementById('tariffModal').classList.add('active'); }
