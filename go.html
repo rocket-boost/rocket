@@ -3,27 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Загрузка VPN...</title>
+    <title>Настройка VPN...</title>
     <script>
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
-            // Браузер сам декодирует параметр из URL при получении
-            const config = urlParams.get('config');
+            // Получаем конфиг. Браузер сам декодирует один уровень.
+            let config = urlParams.get('config');
             
             if (config) {
-                // 1. Пробуем открыть как прямую ссылку (самый надежный метод для vless)
+                // Если ссылка почему-то обрезалась на решетке в URL (бывает в старых браузерах),
+                // мы берем хвост из window.location.hash
+                if (window.location.hash && !config.includes('#')) {
+                    config += window.location.hash;
+                }
+
+                // 1. Попытка открыть напрямую (для v2rayNG / V2Box)
                 window.location.href = config;
                 
-                // 2. Через 1 секунду пробуем метод через схему v2box, если первый не подхватился
+                // 2. Запасной вариант для V2Box через 1.2 сек
                 setTimeout(() => {
-                    // Используем encodeURIComponent только здесь, чтобы упаковать ссылку внутрь другой ссылки
                     window.location.href = "v2box://install-config?url=" + encodeURIComponent(config);
-                }, 1000);
+                }, 1200);
                 
-                // Закрываем через 5 секунд
+                // Закрыть окно через 5 сек
                 setTimeout(() => { window.close(); }, 5000);
             } else {
-                document.body.innerHTML = "<h3>Ошибка: Конфигурация не найдена.</h3>";
+                document.body.innerHTML = "<h3 style='color:white'>Ошибка: Конфиг не найден</h3>";
             }
         };
     </script>
@@ -35,6 +40,6 @@
 </head>
 <body>
     <div class="spinner"></div>
-    <p>Настройка соединения...</p>
+    <p>Передаем настройки в приложение...</p>
 </body>
 </html>
