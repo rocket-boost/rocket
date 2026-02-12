@@ -10,13 +10,20 @@
             const config = urlParams.get('config');
             
             if (config) {
-                // Прямой импорт конфига (не подписки!)
-                const v2boxLink = "v2box://install-config?url=" + config;
+                // Декодируем vless:// ссылку
+                const decodedConfig = decodeURIComponent(config);
                 
-                // Перенаправляем
-                window.location.href = v2boxLink;
+                // Для V2Box на iOS и Android самый надежный способ импорта 
+                // это попытка открыть прямую vless:// ссылку.
+                // Если приложение установлено, оно перехватит этот протокол.
+                window.location.href = decodedConfig;
                 
-                // Закрываем вкладку через 5 секунд, если пользователь вернулся
+                // На случай если vless:// не сработал автоматически, пробуем через схему v2box
+                setTimeout(() => {
+                    window.location.href = "v2box://install-config?url=" + encodeURIComponent(decodedConfig);
+                }, 1500);
+                
+                // Закрываем вкладку через 5 секунд
                 setTimeout(() => { window.close(); }, 5000);
             } else {
                 document.body.innerHTML = "<h3>Ошибка: Данные не получены.</h3>";
