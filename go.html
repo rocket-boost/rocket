@@ -2,35 +2,48 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Redirecting to V2Box...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Запуск V2Box...</title>
     <script>
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const vless = urlParams.get('vless');
+            
             if (vless) {
-                // Декодируем и создаем прямую ссылку для приложения
+                // Прямая ссылка для открытия в V2Box на обеих платформах
                 const v2boxLink = "v2box://install-config?url=" + decodeURIComponent(vless);
                 
                 // Пробуем открыть приложение
                 window.location.href = v2boxLink;
                 
-                // Если через 3 секунды мы все еще тут — значит приложение не установлено
+                // Таймер для тех, у кого приложение не открылось
                 setTimeout(() => {
                     if (!document.hidden) {
-                        alert("V2Box не найден. Установите его из App Store.");
-                        window.location.href = "https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690";
+                        const isAndroid = /Android/i.test(navigator.userAgent);
+                        if (isAndroid) {
+                            if (confirm("V2Box не открылся. Перейти в Google Play?")) {
+                                window.location.href = "https://play.google.com/store/apps/details?id=dev.hexasoftware.v2box";
+                            }
+                        } else {
+                            if (confirm("V2Box не открылся. Перейти в App Store?")) {
+                                window.location.href = "https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690";
+                            }
+                        }
                     }
-                }, 3000);
+                }, 2500);
             } else {
-                document.body.innerHTML = "<p>Ошибка: Ключ не найден.</p>";
+                document.body.innerHTML = "<h3>Ошибка: Конфигурация не найдена.</h3>";
             }
         };
     </script>
+    <style>
+        body { background: #0f0c29; color: white; font-family: sans-serif; text-align: center; padding-top: 50px; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #ff0080; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
 <body>
-    <div style="text-align: center; margin-top: 50px; font-family: sans-serif;">
-        <p>Перенаправление в V2Box...</p>
-        <div class="spinner"></div>
-    </div>
+    <div class="loader"></div>
+    <p>Открываем V2Box...</p>
 </body>
 </html>
