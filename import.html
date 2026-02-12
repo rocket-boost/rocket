@@ -1,1 +1,20 @@
-<meta http-equiv="refresh" content="0; url=vless://{{config}}">
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Importing...</title>
+    <script>
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const config = urlParams.get('config');
+            if (config) {
+                // Прямой редирект на саму ссылку vless
+                window.location.href = config;
+            }
+        };
+    </script>
+</head>
+<body style="background:#0f0c29; color:white; text-align:center; padding-top:100px; font-family:sans-serif;">
+    <p>Запуск приложения VPN...</p>
+</body>
+</html>
