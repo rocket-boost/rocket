@@ -3,55 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Importing...</title>
+    <title>Rocket VPN Import</title>
     <script>
         function openConfig() {
             const urlParams = new URLSearchParams(window.location.search);
-            const config = urlParams.get('config');
-            if (!config) return;
+            const b64config = urlParams.get('enc'); // берем зашифрованный конфиг
+            if (!b64config) return;
 
-            // 1. Пытаемся открыть как обычную ссылку
-            window.location.href = config;
+            try {
+                // Расшифровываем из Base64 обратно в vless://
+                const config = atob(b64config);
+                
+                // Пытаемся открыть
+                window.location.href = config;
 
-            // 2. Для Android: пробуем принудительный запуск через Intent
-            // Это заставляет систему искать приложение, поддерживающее vless
-            setTimeout(() => {
-                const intentUrl = "intent://" + config.replace("vless://", "") + "#Intent;scheme=vless;package=com.v2ray.ang;end";
-                window.location.href = intentUrl;
-            }, 500);
-            
-            // 3. Специально для V2Box (у них своя схема)
-            setTimeout(() => {
-                window.location.href = "v2box://install-config?url=" + encodeURIComponent(config);
-            }, 1000);
+                // Для Android (Intent)
+                setTimeout(() => {
+                    const intentUrl = "intent://" + config.replace("vless://", "") + "#Intent;scheme=vless;package=com.v2ray.ang;end";
+                    window.location.href = intentUrl;
+                }, 500);
+            } catch (e) {
+                console.error("Ошибка декодирования");
+            }
         }
-
         window.onload = openConfig;
     </script>
     <style>
         body { background:#0f0c29; color:white; text-align:center; padding-top:100px; font-family:sans-serif; }
-        .btn { 
-            display: inline-block; background: #00dfd8; color: #0f0c29; padding: 15px 25px; 
-            text-decoration: none; border-radius: 10px; font-weight: bold; margin-top: 20px; 
-            box-shadow: 0 4px 15px rgba(0,223,216,0.3);
-        }
-        .spinner { 
-            border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #00dfd8; 
-            border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; 
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn { display: inline-block; background: #00dfd8; color: #0f0c29; padding: 15px 25px; text-decoration: none; border-radius: 10px; font-weight: bold; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <div class="spinner"></div>
-    <p>Настройка VPN соединения...</p>
-    
-    <a href="javascript:void(0)" onclick="openConfig()" class="btn">
-        ОТКРЫТЬ ПРИЛОЖЕНИЕ ЕЩЕ РАЗ
-    </a>
-    
-    <p style="margin-top: 30px; font-size: 0.8em; color: #888;">
-        Если приложение не открылось автоматически,<br>нажмите на кнопку выше.
-    </p>
+    <p>Настройка защищенного соединения...</p>
+    <a href="javascript:void(0)" onclick="openConfig()" class="btn">ОТКРЫТЬ ПРИЛОЖЕНИЕ</a>
 </body>
 </html>
