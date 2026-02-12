@@ -9,38 +9,42 @@
             const urlParams = new URLSearchParams(window.location.search);
             let config = urlParams.get('config');
             
-            if (!config) {
-                document.body.innerHTML = "<h3 style='color:white'>Ошибка: Конфиг не найден</h3>";
-                return;
-            }
-
-            // Обработка якоря (#), если он потерялся
-            if (window.location.hash && !config.includes('#')) {
+            // ИСПРАВЛЕНИЕ: Собираем конфиг, если часть после # отвалилась в хеш страницы
+            if (config && window.location.hash) {
                 config += window.location.hash;
             }
 
-            // 1. Прямая попытка (отлично работает на iOS)
+            if (!config || config.trim() === "") {
+                document.getElementById('status-text').innerHTML = "Ошибка: Конфиг не найден в URL";
+                document.getElementById('loader').style.display = 'none';
+                return;
+            }
+
+            // Настраиваем кнопку ручного запуска сразу
+            const manualBtn = document.getElementById('manual-link');
+            manualBtn.href = config;
+
+            // 1. Попытка открыть напрямую (V2RayNG, Streisand, Shadowrocket)
             window.location.href = config;
 
-            // 2. Логика специально для Android (Intent)
-            // Если через 500мс мы все еще на этой странице, пробуем Intent
+            // 2. Логика для Android (Intent) - через 500мс
             setTimeout(() => {
                 if (navigator.userAgent.toLowerCase().indexOf("android") > -1) {
-                    // Формируем Intent-ссылку, которую Android не сможет игнорировать
-                    const rawConfig = config.replace("vless://", "");
-                    const intentUrl = "intent://" + rawConfig + "#Intent;scheme=vless;package=com.v2ray.ang;end";
+                    // Используем универсальную схему для v2rayNG
+                    const intentUrl = "intent://" + config.replace("vless://", "") + "#Intent;scheme=vless;package=com.v2ray.ang;end";
                     window.location.href = intentUrl;
                 }
-            }, 500);
+            }, 600);
 
-            // 3. Запасной вариант для V2Box (iOS/Android)
+            // 3. Запасной вариант для V2Box (iOS/Android) - через 1.2сек
             setTimeout(() => {
+                // Важно: V2Box требует кодированную ссылку внутри параметра url
                 window.location.href = "v2box://install-config?url=" + encodeURIComponent(config);
             }, 1200);
             
-            // 4. Кнопка "ручного" запуска, если авто-переход заблокирован
+            // 4. Показываем кнопку, если ничего не сработало авто-переходом
             setTimeout(() => {
-                document.getElementById('manual-link').style.display = 'block';
+                manualBtn.style.display = 'inline-block';
                 document.getElementById('loader').style.display = 'none';
             }, 3000);
         };
@@ -49,16 +53,17 @@
         body { background: #0f0c29; color: white; font-family: sans-serif; text-align: center; padding-top: 80px; }
         .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #00dfd8; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .btn { display: none; background: #00dfd8; color: #0f0c29; padding: 15px 25px; text-decoration: none; border-radius: 10px; font-weight: bold; margin-top: 20px; }
+        .btn { display: none; background: #00dfd8; color: #0f0c29; padding: 15px 25px; text-decoration: none; border-radius: 10px; font-weight: bold; margin-top: 20px; transition: 0.3s; }
+        .btn:hover { background: #00f0e9; transform: scale(1.05); }
     </style>
 </head>
 <body>
     <div id="loader">
         <div class="spinner"></div>
-        <p>Настраиваем ваш VPN...</p>
+        <p id="status-text">Настраиваем ваш VPN...</p>
     </div>
 
-    <a href="javascript:void(0)" onclick="location.reload()" class="btn" id="manual-link">
+    <a href="#" class="btn" id="manual-link">
         ОТКРЫТЬ ПРИЛОЖЕНИЕ ВРУЧНУЮ
     </a>
 </body>
