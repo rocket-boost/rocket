@@ -7,26 +7,23 @@
     <script>
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
+            // Браузер сам декодирует параметр из URL при получении
             const config = urlParams.get('config');
             
             if (config) {
-                // Декодируем vless:// ссылку
-                const decodedConfig = decodeURIComponent(config);
+                // 1. Пробуем открыть как прямую ссылку (самый надежный метод для vless)
+                window.location.href = config;
                 
-                // Для V2Box на iOS и Android самый надежный способ импорта 
-                // это попытка открыть прямую vless:// ссылку.
-                // Если приложение установлено, оно перехватит этот протокол.
-                window.location.href = decodedConfig;
-                
-                // На случай если vless:// не сработал автоматически, пробуем через схему v2box
+                // 2. Через 1 секунду пробуем метод через схему v2box, если первый не подхватился
                 setTimeout(() => {
-                    window.location.href = "v2box://install-config?url=" + encodeURIComponent(decodedConfig);
-                }, 1500);
+                    // Используем encodeURIComponent только здесь, чтобы упаковать ссылку внутрь другой ссылки
+                    window.location.href = "v2box://install-config?url=" + encodeURIComponent(config);
+                }, 1000);
                 
-                // Закрываем вкладку через 5 секунд
+                // Закрываем через 5 секунд
                 setTimeout(() => { window.close(); }, 5000);
             } else {
-                document.body.innerHTML = "<h3>Ошибка: Данные не получены.</h3>";
+                document.body.innerHTML = "<h3>Ошибка: Конфигурация не найдена.</h3>";
             }
         };
     </script>
@@ -38,6 +35,6 @@
 </head>
 <body>
     <div class="spinner"></div>
-    <p>Открываем V2Box и добавляем настройки...</p>
+    <p>Настройка соединения...</p>
 </body>
 </html>
