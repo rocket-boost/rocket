@@ -1,34 +1,133 @@
-<button class="btn btn-rocket" onclick="connectRocket()">🚀 ЗАПУСТИТЬ РАКЕТУ</button>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZOO VPN PREMIUM</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
+        body { margin: 0; padding: 20px; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; min-height: 100vh; }
+        .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; }
+        @keyframes move { from { transform: translateY(100vh); } to { transform: translateY(-10vh); } }
+        .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
+        .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 20px; text-align: center; }
+        .balance-val { font-size: 42px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; text-align: center; }
+        .box-title { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 3px; }
+        .box-data { font-size: 14px; font-weight: 600; }
+        .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; }
+        .btn-rocket { background: linear-gradient(45deg, #00c6ff, #0072ff); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); animation: pulse 2s infinite; }
+        .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); }
+        .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        .modal { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1a1a2e; border-top: 2px solid var(--accent-cyan); border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 25px 20px; z-index: 100; transition: 0.4s; box-sizing: border-box; }
+        .modal.active { bottom: 0; }
+        input { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--accent-cyan); background: rgba(255,255,255,0.05); color: white; font-size: 20px; text-align: center; margin-bottom: 20px; box-sizing: border-box; }
+        .pay-option { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="stars-container" id="stars"></div>
+    <div class="main-container" id="mainContent">
+        <div class="card-balance">
+            <div style="font-size: 13px;">Ваш баланс</div>
+            <div class="balance-val" id="balanceDisplay">0.00 ₽</div>
+            <div style="font-size: 10px; opacity: 0.5;" id="userDisplay">ID: ---</div>
+        </div>
+        <div class="grid-info">
+            <div class="box"><div class="box-title">Статус</div><div class="box-data" id="statusDisplay" style="color:#ff4d4d">● Не активен</div></div>
+            <div class="box"><div class="box-title">Доступно</div><div class="box-data" id="daysDisplay">0 дней</div></div>
+        </div>
+        <button class="btn btn-rocket" onclick="connectRocket()">🚀 ПОДКЛЮЧИТЬ РАКЕТУ</button>
+        <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
+        <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
+    </div>
 
-<script>
-    // ... (начало скрипта оставляем) ...
+    <div class="modal" id="tariffModal">
+        <div style="text-align:center; margin-bottom:20px; font-weight:700;">ТАРИФЫ</div>
+        <div class="pay-option" onclick="confirmBuy(1, 299)">1 Месяц - 299 ₽</div>
+        <div class="pay-option" onclick="confirmBuy(3, 834)">3 Месяца - 834 ₽</div>
+        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
+    </div>
+    
+    <div class="modal" id="amountModal">
+        <input type="number" id="sumInput" placeholder="Сумма (₽)">
+        <button class="btn btn-pay" onclick="tg.sendData(JSON.stringify({action: 'pay', amount: document.getElementById('sumInput').value})); tg.close();">ПОПОЛНИТЬ</button>
+        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
+    </div>
 
-    function connectRocket() {
-        if (parseInt(days) <= 0) return tg.showAlert("Сначала купите подписку!");
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
         
-        // 1. Копируем ключ в буфер обмена автоматически
-        const el = document.createElement('textarea');
-        el.value = vlessLink;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
+        const params = new URLSearchParams(window.location.search);
+        const balance = params.get('balance') || "0";
+        const days = params.get('days') || "0";
+        const vlessLink = decodeURIComponent(params.get('vless') || "");
 
-        // 2. Пытаемся открыть приложение напрямую через протокол ключа
-        window.location.href = vlessLink;
+        document.getElementById('balanceDisplay').innerText = balance + " ₽";
+        document.getElementById('userDisplay').innerText = "ID: " + params.get('id');
+        document.getElementById('daysDisplay').innerText = days + " дней";
+        if (parseInt(days) > 0) { 
+            document.getElementById('statusDisplay').innerText = "● Активен"; 
+            document.getElementById('statusDisplay').style.color = "#00ff00"; 
+        }
 
-        // 3. Уведомление для юзера
-        tg.showPopup({
-            title: "Почти готово!",
-            message: "Код скопирован в буфер. Если приложение не открылось само — открой V2rayTun и нажми 'Добавить из буфера'.",
-            buttons: [
-                {id: "ok", type: "default", text: "Понял!"},
-                {id: "store", type: "destructive", text: "Скачать V2rayTun"}
-            ]
-        }, (id) => {
-            if (id === "store") tg.openLink("https://apps.apple.com/us/app/v2raytun/id6476628951?l=ru");
-        });
-    }
+        function connectRocket() {
+            if (parseInt(days) <= 0) return tg.showAlert("Сначала купите подписку!");
+            
+            const appStoreUrl = "https://apps.apple.com/us/app/v2raytun/id6476628951?l=ru";
+            
+            // 1. Автоматически копируем код в буфер (чтобы кнопка "Добавить из буфера" в приложении сработала)
+            const el = document.createElement('textarea');
+            el.value = vlessLink;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
 
-    // ... (остальной код без изменений) ...
-</script>
+            // 2. Пытаемся вызвать приложение напрямую
+            window.location.replace(vlessLink);
+
+            // 3. Выводим системное уведомление Телеграма
+            setTimeout(() => {
+                if (document.visibilityState === 'visible') {
+                    tg.showPopup({
+                        title: "Инструкция",
+                        message: "Код скопирован! Если приложение не открылось:\n1. Открой V2rayTun\n2. Нажми 'Добавить из буфера'",
+                        buttons: [
+                            {id: "ok", type: "default", text: "Понял"},
+                            {id: "download", type: "destructive", text: "Скачать приложение"}
+                        ]
+                    }, (buttonId) => {
+                        if (buttonId === "download") tg.openLink(appStoreUrl);
+                    });
+                }
+            }, 2000);
+        }
+
+        function openTariffModal() { document.getElementById('tariffModal').classList.add('active'); }
+        function openAmountModal() { document.getElementById('amountModal').classList.add('active'); }
+        function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
+        
+        function confirmBuy(m, p) {
+            if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств!");
+            tg.sendData(JSON.stringify({action: "buy_subscription", months: m, price: p}));
+            setTimeout(() => tg.close(), 100);
+        }
+
+        const container = document.getElementById('stars');
+        for (let i = 0; i < 30; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = star.style.height = Math.random() * 2 + 'px';
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.animationDuration = Math.random() * 3 + 2 + 's';
+            container.appendChild(star);
+        }
+    </script>
+</body>
+</html>
