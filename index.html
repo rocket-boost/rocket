@@ -26,7 +26,6 @@
         .modal.active { bottom: 0; }
         input { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--accent-cyan); background: rgba(255,255,255,0.05); color: white; font-size: 20px; text-align: center; outline: none; margin-bottom: 20px; box-sizing: border-box; }
         .pay-option { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; transition: 0.2s; }
-        .pay-option:active { transform: scale(0.98); background: rgba(255,255,255,0.1); }
         .discount { background: var(--accent-pink); color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; margin-left: 10px; }
     </style>
 </head>
@@ -55,15 +54,15 @@
             <span>🔥</span>
         </div>
         <div class="pay-option" onclick="confirmBuy(3, 834)">
-            <div><b>3 Месяца</b><span class="discount">-7%</span><br><small>834 ₽ (вместо 897)</small></div>
+            <div><b>3 Месяца</b><span class="discount">-7%</span><br><small>834 ₽</small></div>
             <span>⭐</span>
         </div>
         <div class="pay-option" onclick="confirmBuy(6, 1525)">
-            <div><b>6 Месяцев</b><span class="discount">-15%</span><br><small>1525 ₽ (вместо 1794)</small></div>
+            <div><b>6 Месяцев</b><span class="discount">-15%</span><br><small>1525 ₽</small></div>
             <span>💎</span>
         </div>
         <div class="pay-option" onclick="confirmBuy(12, 2870)">
-            <div><b>12 Месяцев</b><span class="discount">-20%</span><br><small>2870 ₽ (вместо 3588)</small></div>
+            <div><b>12 Месяцев</b><span class="discount">-20%</span><br><small>2870 ₽</small></div>
             <span>👑</span>
         </div>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
@@ -90,11 +89,12 @@
         tg.ready();
 
         const urlParams = new URLSearchParams(window.location.search);
-        const balance = urlParams.get('balance') || "0.00";
+        const balance = urlParams.get('balance') || "0";
         const userId = urlParams.get('id') || "---";
         const days = urlParams.get('days') || "0";
 
-        document.getElementById('balanceDisplay').innerText = balance + " ₽";
+        // Форматируем баланс, чтобы не было .0 если число целое
+        document.getElementById('balanceDisplay').innerText = parseFloat(balance).toLocaleString() + " ₽";
         document.getElementById('userDisplay').innerText = "ID: " + userId;
         document.getElementById('daysDisplay').innerText = days + " дней";
         
@@ -111,11 +111,12 @@
 
         function confirmBuy(months, price) {
             if (parseFloat(balance) < price) {
-                return tg.showAlert(`Недостаточно средств! Баланс: ${balance}₽, нужно: ${price}₽`);
+                return tg.showAlert(`Недостаточно средств! Нужно: ${price}₽`);
             }
-            tg.showConfirm(`Купить подписку на ${months} мес. за ${price}₽?`, (ok) => {
+            tg.showConfirm(`Купить ${months} мес. за ${price}₽?`, (ok) => {
                 if (ok) {
                     tg.sendData(JSON.stringify({action: "buy_subscription", months: months, price: price}));
+                    // Закрываем окно, чтобы пользователь нажал на новую кнопку в чате
                     setTimeout(() => tg.close(), 100);
                 }
             });
@@ -143,7 +144,6 @@
             document.getElementById('mainContent').classList.remove('blur-bg');
         }
 
-        // Звезды без сокращений
         const container = document.getElementById('stars');
         for (let i = 0; i < 40; i++) {
             const star = document.createElement('div');
