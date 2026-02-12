@@ -93,7 +93,6 @@
         const userId = urlParams.get('id') || "---";
         const days = urlParams.get('days') || "0";
 
-        // Форматируем баланс, чтобы не было .0 если число целое
         document.getElementById('balanceDisplay').innerText = parseFloat(balance).toLocaleString() + " ₽";
         document.getElementById('userDisplay').innerText = "ID: " + userId;
         document.getElementById('daysDisplay').innerText = days + " дней";
@@ -116,7 +115,6 @@
             tg.showConfirm(`Купить ${months} мес. за ${price}₽?`, (ok) => {
                 if (ok) {
                     tg.sendData(JSON.stringify({action: "buy_subscription", months: months, price: price}));
-                    // Закрываем окно, чтобы пользователь нажал на новую кнопку в чате
                     setTimeout(() => tg.close(), 100);
                 }
             });
