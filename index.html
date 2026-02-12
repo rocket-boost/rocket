@@ -2,118 +2,67 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZOO VPN PREMIUM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>RocketVPN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
-        body { margin: 0; padding: 20px; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; min-height: 100vh; }
-        .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; }
-        @keyframes move { from { transform: translateY(100vh); } to { transform: translateY(-10vh); } }
-        .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
-        .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 20px; text-align: center; }
-        .balance-val { font-size: 42px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; text-align: center; }
-        .box-title { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 3px; }
-        .box-data { font-size: 14px; font-weight: 600; }
-        .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; }
-        .btn-rocket { background: linear-gradient(45deg, #00c6ff, #0072ff); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); animation: pulse 2s infinite; }
-        .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); }
-        .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
-        .modal { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1a1a2e; border-top: 2px solid var(--accent-cyan); border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 25px 20px; z-index: 100; transition: 0.4s; box-sizing: border-box; }
-        .modal.active { bottom: 0; }
-        input { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--accent-cyan); background: rgba(255,255,255,0.05); color: white; font-size: 20px; text-align: center; margin-bottom: 20px; box-sizing: border-box; }
-        .pay-option { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at top, #1a1a2e 0%, #0f0f1b 100%); color: white; margin: 0; padding: 20px; text-align: center; overflow: hidden; }
+        .card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); }
+        .balance-value { font-size: 48px; font-weight: 800; color: #ff00ff; text-shadow: 0 0 20px rgba(255,0,255,0.4); margin: 10px 0; }
+        .btn { display: block; width: 100%; padding: 18px; margin: 12px 0; border: none; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; color: white; text-decoration: none; }
+        .btn-blue { background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3); }
+        .btn-pink { background: linear-gradient(90deg, #f953c6 0%, #b91d73 100%); }
+        .btn-cyan { background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%); }
+        .status-container { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; }
+        .status-box { flex: 1; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.05); }
+        .status-label { font-size: 12px; opacity: 0.5; text-transform: uppercase; margin-bottom: 5px; }
     </style>
 </head>
 <body>
-    <div class="stars-container" id="stars"></div>
-    <div class="main-container">
-        <div class="card-balance">
-            <div style="font-size: 13px;">Ваш баланс</div>
-            <div class="balance-val" id="balanceDisplay">0.00 ₽</div>
-            <div style="font-size: 10px; opacity: 0.5;" id="userDisplay">ID: ---</div>
-        </div>
-        <div class="grid-info">
-            <div class="box"><div class="box-title">Статус</div><div class="box-data" id="statusDisplay" style="color:#ff4d4d">● Не активен</div></div>
-            <div class="box"><div class="box-title">Доступно</div><div class="box-data" id="daysDisplay">0 дней</div></div>
-        </div>
-        
-        <button class="btn btn-rocket" id="rocketBtn">🚀 ПОДКЛЮЧИТЬ VPN</button>
-        
-        <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
-        <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
+    <div class="card">
+        <div class="status-label">Ваш баланс</div>
+        <div id="balance" class="balance-value">0.0 ₽</div>
+        <div id="user_id" style="opacity: 0.3; font-size: 12px;">ID: ...</div>
     </div>
 
-    <div class="modal" id="tariffModal">
-        <div style="text-align:center; margin-bottom:20px; font-weight:700;">ТАРИФЫ</div>
-        <div class="pay-option" onclick="confirmBuy(1, 299)">1 Месяц - 299 ₽</div>
-        <div class="pay-option" onclick="confirmBuy(3, 834)">3 Месяца - 834 ₽</div>
-        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
+    <div class="status-container">
+        <div class="status-box">
+            <div class="status-label">Статус</div>
+            <div id="status" style="color: #00ff88; font-weight: 600;">● Активен</div>
+        </div>
+        <div class="status-box">
+            <div class="status-label">Доступно</div>
+            <div id="days" style="font-weight: 600;">0 дней</div>
+        </div>
     </div>
-    
-    <div class="modal" id="amountModal">
-        <input type="number" id="sumInput" placeholder="Сумма (₽)">
-        <button class="btn btn-pay" onclick="sendPayment()">ПОПОЛНИТЬ</button>
-        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
-    </div>
+
+    <button class="btn btn-blue" onclick="requestVPN()">🚀 АВТО-ПОДКЛЮЧЕНИЕ (V2BOX)</button>
+    <button class="btn btn-pink" onclick="buySub()">💎 ВЫБРАТЬ ТАРИФ</button>
+    <button class="btn btn-cyan" onclick="topUp()">💳 ПОПОЛНИТЬ БАЛАНС</button>
 
     <script>
-        let tg = window.Telegram.WebApp;
+        const tg = window.Telegram.WebApp;
         tg.expand();
         
         const params = new URLSearchParams(window.location.search);
-        const balance = params.get('balance') || "0";
-        const days = params.get('days') || "0";
+        document.getElementById('balance').innerText = (params.get('balance') || '0.0') + ' ₽';
+        document.getElementById('user_id').innerText = 'ID: ' + (params.get('id') || '...');
+        document.getElementById('days').innerText = (params.get('days') || '0') + ' дней';
 
-        document.getElementById('balanceDisplay').innerText = balance + " ₽";
-        document.getElementById('userDisplay').innerText = "ID: " + params.get('id');
-        document.getElementById('daysDisplay').innerText = days + " дней";
-        if (parseInt(days) > 0) { 
-            document.getElementById('statusDisplay').innerText = "● Активен"; 
-            document.getElementById('statusDisplay').style.color = "#00ff00"; 
-        }
-
-        document.getElementById('rocketBtn').onclick = function() {
-            if (parseInt(days) <= 0) return tg.showAlert("Сначала купите подписку!");
-            
-            tg.showConfirm("Для подключения мы отправим вам кнопку запуска в чат. Нажмите ОК, чтобы получить её.", (ok) => {
-                if (ok) {
-                    // Отправляем сигнал боту прислать кнопку импорта
-                    tg.sendData(JSON.stringify({action: 'request_vpn_button'}));
-                    tg.close();
-                }
-            });
-        };
-
-        function openTariffModal() { document.getElementById('tariffModal').classList.add('active'); }
-        function openAmountModal() { document.getElementById('amountModal').classList.add('active'); }
-        function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
-        
-        function sendPayment() {
-            const val = document.getElementById('sumInput').value;
-            if(!val) return;
-            tg.sendData(JSON.stringify({action: 'pay', amount: val}));
+        function requestVPN() {
+            // Отправляем сигнал боту, чтобы он прислал кнопку с правильной ссылкой
+            tg.sendData(JSON.stringify({action: "request_vpn_button"}));
             tg.close();
         }
 
-        function confirmBuy(m, p) {
-            if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств!");
-            tg.sendData(JSON.stringify({action: "buy_subscription", months: m, price: p}));
-            setTimeout(() => tg.close(), 100);
+        function buySub() {
+            tg.sendData(JSON.stringify({action: "buy_subscription", months: 1, price: 300}));
+            tg.close();
         }
 
-        const container = document.getElementById('stars');
-        for (let i = 0; i < 30; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.width = star.style.height = Math.random() * 2 + 'px';
-            star.style.left = Math.random() * 100 + 'vw';
-            star.style.animationDuration = Math.random() * 3 + 2 + 's';
-            container.appendChild(star);
+        function topUp() {
+            tg.showAlert("Для пополнения напишите администратору.");
         }
     </script>
 </body>
