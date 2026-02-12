@@ -1,65 +1,34 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocket VPN - Настройка</title>
-    <style>
-        body { background: #0b0e14; color: white; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
-        .container { background: #161b22; padding: 40px 25px; border-radius: 24px; border: 1px solid #30363d; width: 85%; max-width: 350px; }
-        .loader { width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: #00dfd8; border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
-        @keyframes rotation { 0% { transform: rotate(0deg) } 100% { transform: rotate(360deg) } } 
-        h2 { font-size: 20px; margin-top: 20px; color: #00dfd8; }
-        p { font-size: 14px; color: #8b949e; line-height: 1.6; }
-        .btn { display: none; background: #00dfd8; color: #0b0e14; padding: 15px; text-decoration: none; border-radius: 12px; font-weight: bold; margin-top: 20px; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <span class="loader"></span>
-        <h2 id="status">Настройка ключа...</h2>
-        <p id="msg">Копируем конфигурацию и открываем приложение</p>
-        <a href="#" id="openBtn" class="btn">ОТКРЫТЬ ПРИЛОЖЕНИЕ</a>
-    </div>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const enc = urlParams.get('enc'); // Здесь теперь зашифрована КОРОТКАЯ ссылка
 
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const enc = urlParams.get('enc');
+    async function process() {
+        if (!enc) return;
 
-        async function process() {
-            if (!enc) {
-                document.getElementById('status').innerText = "Ошибка";
-                return;
-            }
-
-            const vlessLink = atob(enc);
-            const isAndroid = /Android/i.test(navigator.userAgent);
-            const appUri = isAndroid ? "happ://" : "v2box://";
-
-            // Функция копирования
-            const el = document.createElement('textarea');
-            el.value = vlessLink;
-            el.setAttribute('readonly', '');
-            el.style.position = 'absolute';
-            el.style.left = '-9999px';
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-
-            // Небольшая пауза, чтобы система успела записать буфер
-            setTimeout(() => {
-                document.getElementById('status').innerText = "Готово!";
-                document.getElementById('msg').innerHTML = "Конфигурация скопирована.<br>Нажмите <b>YES/IMPORT</b> в приложении.";
-                document.getElementById('openBtn').style.display = "block";
-                document.getElementById('openBtn').href = appUri;
-                
-                // Авто-запуск приложения
-                window.location.href = appUri;
-            }, 600);
+        const subUrl = atob(enc); // Получаем https://твой-домен.com/sub/123.txt
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        
+        let finalAppUrl;
+        if (isAndroid) {
+            // Команда для Happ: добавить подписку
+            finalAppUrl = "happ://add-subscription?url=" + encodeURIComponent(subUrl) + "&name=RocketVPN";
+        } else {
+            // Команда для V2Box: добавить подписку
+            finalAppUrl = "v2box://add-sub?url=" + encodeURIComponent(subUrl) + "&title=RocketVPN";
         }
 
-        window.onload = process;
-    </script>
-</body>
-</html>
+        // 1. Копируем ссылку в буфер (на всякий случай)
+        const el = document.createElement('textarea');
+        el.value = subUrl;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+
+        // 2. Редирект в приложение
+        setTimeout(() => {
+            window.location.href = finalAppUrl;
+        }, 500);
+    }
+    window.onload = process;
+</script>
