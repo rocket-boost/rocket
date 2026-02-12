@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Redirect</title>
+    <title>Redirecting...</title>
     <script>
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const vless = urlParams.get('vless');
-            if (vless) {
-                window.location.href = "v2box://install-config?url=" + vless;
-                setTimeout(() => { window.close(); }, 2000);
-            }
-        };
+        // Получаем ключ из параметров ссылки
+        const urlParams = new URLSearchParams(window.location.search);
+        const vless = urlParams.get('vless');
+        if (vless) {
+            // Формируем команду для V2Box
+            const v2boxLink = "v2box://install-config?url=" + vless;
+            // Перенаправляем
+            window.location.href = v2boxLink;
+            // Если не перекинуло за 2 сек, закрываем
+            setTimeout(() => { window.close(); }, 2000);
+        }
     </script>
 </head>
-<body style="background: #0f0f1b; color: white; display: flex; align-items: center; justify-content: center; height: 100vh;">
-    <p>Загрузка конфига...</p>
+<body>
+    <p>Перенаправление в V2Box...</p>
 </body>
 </html>
