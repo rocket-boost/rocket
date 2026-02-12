@@ -3,47 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Запуск V2Box...</title>
+    <title>Настройка VPN...</title>
     <script>
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const vless = urlParams.get('vless');
             
             if (vless) {
-                // Прямая ссылка для открытия в V2Box на обеих платформах
-                const v2boxLink = "v2box://install-config?url=" + decodeURIComponent(vless);
+                // Прямая команда для V2Box на импорт конфига
+                const v2boxLink = "v2box://install-config?url=" + vless;
                 
-                // Пробуем открыть приложение
+                // Пробуем открыть
                 window.location.href = v2boxLink;
                 
-                // Таймер для тех, у кого приложение не открылось
+                // Если не открылось через 2 сек, показываем кнопки магазинов
                 setTimeout(() => {
                     if (!document.hidden) {
-                        const isAndroid = /Android/i.test(navigator.userAgent);
-                        if (isAndroid) {
-                            if (confirm("V2Box не открылся. Перейти в Google Play?")) {
-                                window.location.href = "https://play.google.com/store/apps/details?id=dev.hexasoftware.v2box";
-                            }
-                        } else {
-                            if (confirm("V2Box не открылся. Перейти в App Store?")) {
-                                window.location.href = "https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690";
-                            }
-                        }
+                        document.getElementById('manual').style.display = 'block';
                     }
-                }, 2500);
+                }, 2000);
             } else {
-                document.body.innerHTML = "<h3>Ошибка: Конфигурация не найдена.</h3>";
+                document.body.innerHTML = "<h3>Ошибка: Ссылка пустая</h3>";
             }
         };
     </script>
     <style>
-        body { background: #0f0c29; color: white; font-family: sans-serif; text-align: center; padding-top: 50px; }
+        body { background: #0f0c29; color: white; font-family: sans-serif; text-align: center; padding-top: 60px; }
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #ff0080; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn { display: inline-block; padding: 12px 20px; background: #007aff; color: white; text-decoration: none; border-radius: 10px; margin: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="loader"></div>
-    <p>Открываем V2Box...</p>
+    <p>Добавляем настройки в V2Box...</p>
+    
+    <div id="manual" style="display:none; margin-top: 30px;">
+        <p>Если приложение не открылось:</p>
+        <a href="https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690" class="btn">Скачать для iOS</a>
+        <a href="https://play.google.com/store/apps/details?id=dev.hexasoftware.v2box" class="btn" style="background:#34a853">Скачать для Android</a>
+    </div>
 </body>
 </html>
