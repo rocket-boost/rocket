@@ -46,29 +46,18 @@
         <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
     </div>
 
-    <div class="modal" id="tariffModal">
-        <div style="text-align:center; margin-bottom:20px; font-weight:700;">ТАРИФЫ</div>
-        <div class="pay-option" onclick="confirmBuy(1, 299)">1 Месяц - 299 ₽</div>
-        <div class="pay-option" onclick="confirmBuy(3, 834)">3 Месяца - 834 ₽</div>
-        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
-    </div>
+    <div class="modal" id="tariffModal">...</div>
     
-    <div class="modal" id="amountModal">
-        <input type="number" id="sumInput" placeholder="Сумма (₽)">
-        <button class="btn btn-pay" onclick="tg.sendData(JSON.stringify({action: 'pay', amount: document.getElementById('sumInput').value})); tg.close();">ПОПОЛНИТЬ</button>
-        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
-    </div>
-
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
         
         const params = new URLSearchParams(window.location.search);
-        const balance = params.get('balance') || "0";
         const days = params.get('days') || "0";
         const vlessLink = decodeURIComponent(params.get('vless') || "");
 
-        document.getElementById('balanceDisplay').innerText = balance + " ₽";
+        // Настройка данных пользователя
+        document.getElementById('balanceDisplay').innerText = (params.get('balance') || "0") + " ₽";
         document.getElementById('userDisplay').innerText = "ID: " + params.get('id');
         document.getElementById('daysDisplay').innerText = days + " дней";
         if (parseInt(days) > 0) { 
@@ -79,36 +68,41 @@
         function connectRocket() {
             if (parseInt(days) <= 0) return tg.showAlert("Сначала купите подписку!");
             
-            const appStoreUrl = "https://apps.apple.com/us/app/v2raytun/id6476628951?l=ru";
-            
-            // Прямая команда импорта для V2rayTun
+            // 1. Формируем специальную ссылку импорта
             const importLink = "v2raytun://import/" + vlessLink;
             
-            // 1. Пытаемся открыть через прямую ссылку
-            window.location.href = importLink;
+            // 2. Используем метод Telegram, который iOS не блокирует
+            tg.openLink(importLink);
 
-            // 2. Ставим таймер на проверку, ушли ли мы со страницы
-            let start = Date.now();
+            // 3. Показываем инструкцию, если юзер вернулся в бота
             setTimeout(() => {
-                // Если мы все еще видим страницу и прошло мало времени (приложение не открылось)
-                if (document.visibilityState === 'visible' && (Date.now() - start < 3500)) {
-                    tg.showConfirm("Приложение V2rayTun не открылось. Перейти в App Store?", (ok) => {
-                        if (ok) tg.openLink(appStoreUrl);
-                    });
-                }
-            }, 3000);
+                tg.showPopup({
+                    title: "Ракета запущена!",
+                    message: "Если приложение не открылось, убедитесь, что V2rayTun установлен.",
+                    buttons: [
+                        {id: "ok", type: "default", text: "ОК"},
+                        {id: "download", type: "destructive", text: "Скачать V2rayTun"}
+                    ]
+                }, (buttonId) => {
+                    if (buttonId === "download") {
+                        tg.openLink("https://apps.apple.com/us/app/v2raytun/id6476628951?l=ru");
+                    }
+                });
+            }, 2000);
         }
 
         function openTariffModal() { document.getElementById('tariffModal').classList.add('active'); }
         function openAmountModal() { document.getElementById('amountModal').classList.add('active'); }
         function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
         
+        // Покупка (отправка данных боту)
         function confirmBuy(m, p) {
-            if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств!");
+            if (parseFloat(params.get('balance')) < p) return tg.showAlert("Недостаточно средств!");
             tg.sendData(JSON.stringify({action: "buy_subscription", months: m, price: p}));
             setTimeout(() => tg.close(), 100);
         }
 
+        // Звезды на фоне
         const container = document.getElementById('stars');
         for (let i = 0; i < 30; i++) {
             const star = document.createElement('div');
