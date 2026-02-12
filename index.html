@@ -15,153 +15,62 @@
         }
 
         body {
-            margin: 0;
-            padding: 20px;
+            margin: 0; padding: 20px;
             background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
-            color: var(--text);
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            overflow: hidden;
-            min-height: 100vh;
+            color: var(--text); font-family: 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden; min-height: 100vh;
         }
 
-        /* --- АНИМАЦИЯ ЗВЕЗД --- */
-        .stars-container {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            overflow: hidden;
-        }
+        /* ЗВЕЗДЫ */
+        .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; }
+        @keyframes move { from { transform: translateY(100vh); } to { transform: translateY(-10vh); } }
 
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.5;
-            animation: move linear infinite;
-        }
-
-        @keyframes move {
-            from { transform: translateY(100vh); }
-            to { transform: translateY(-10vh); }
-        }
-
-        /* --- КОНТЕНТ --- */
-        .main-container {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            transition: 0.3s;
-        }
-
-        .blur-bg {
-            filter: blur(15px);
-            pointer-events: none;
-        }
+        /* КОНТЕНТ */
+        .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; }
+        .blur-bg { filter: blur(15px); pointer-events: none; }
 
         .card-balance {
-            background: var(--glass);
-            backdrop-filter: blur(15px);
+            background: var(--glass); backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 0, 128, 0.3);
-            border-radius: 25px;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(255, 0, 128, 0.1);
+            border-radius: 25px; padding: 25px; text-align: center;
         }
 
         .balance-val {
-            font-size: 48px;
-            font-weight: 800;
+            font-size: 48px; font-weight: 800;
             background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        .grid-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .box {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 20px;
-        }
-
+        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 20px; }
         .box-title { font-size: 11px; opacity: 0.6; text-transform: uppercase; margin-bottom: 5px; }
         .box-data { font-size: 14px; font-weight: 600; }
 
-        .btn {
-            border: none;
-            padding: 20px;
-            border-radius: 20px;
-            font-size: 16px;
-            font-weight: 800;
-            color: white;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+        .btn { border: none; padding: 20px; border-radius: 20px; font-size: 16px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; }
+        .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); box-shadow: 0 5px 20px rgba(255, 0, 128, 0.4); }
+        .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); box-shadow: 0 5px 20px rgba(0, 223, 216, 0.3); }
 
-        .btn-vpn {
-            background: linear-gradient(45deg, #ff0080, #7928ca);
-            box-shadow: 0 5px 20px rgba(255, 0, 128, 0.4);
-        }
-
-        .btn-pay {
-            background: linear-gradient(45deg, #00dfd8, #007cf0);
-            box-shadow: 0 5px 20px rgba(0, 223, 216, 0.3);
-            margin-top: 5px;
-        }
-
-        .status-dot { color: #00ff00; margin-right: 5px; }
-
-        /* --- МОДАЛЬНОЕ ОКНО --- */
+        /* МОДАЛКА */
         .modal {
-            position: fixed;
-            bottom: -100%;
-            left: 0;
-            width: 100%;
-            background: #1a1a2e;
-            border-top: 2px solid var(--accent-cyan);
-            border-top-left-radius: 30px;
-            border-top-right-radius: 30px;
-            padding: 30px 20px;
-            z-index: 100;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-sizing: border-box;
+            position: fixed; bottom: -100%; left: 0; width: 100%;
+            background: #1a1a2e; border-top: 2px solid var(--accent-cyan);
+            border-top-left-radius: 30px; border-top-right-radius: 30px;
+            padding: 30px 20px; z-index: 100; transition: 0.4s; box-sizing: border-box;
         }
-
         .modal.active { bottom: 0; }
 
         input {
-            width: 100%;
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid var(--accent-cyan);
-            background: rgba(255,255,255,0.05);
-            color: white;
-            font-size: 20px;
-            text-align: center;
-            outline: none;
-            margin-bottom: 20px;
-            box-sizing: border-box;
+            width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--accent-cyan);
+            background: rgba(255,255,255,0.05); color: white; font-size: 20px; text-align: center;
+            outline: none; margin-bottom: 20px; box-sizing: border-box;
         }
 
         .pay-option {
-            background: rgba(255,255,255,0.05);
-            margin-bottom: 12px;
-            padding: 20px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px;
+            display: flex; align-items: center; justify-content: space-between;
             border: 1px solid rgba(255,255,255,0.1);
         }
-
     </style>
 </head>
 <body>
@@ -176,22 +85,10 @@
         </div>
 
         <div class="grid-info">
-            <div class="box">
-                <div class="box-title">Статус</div>
-                <div class="box-data"><span class="status-dot">●</span> Активен</div>
-            </div>
-            <div class="box">
-                <div class="box-title">Локация</div>
-                <div class="box-data">🇩🇪 Germany</div>
-            </div>
-            <div class="box">
-                <div class="box-title">Лимит</div>
-                <div class="box-data">12.4 / 100 GB</div>
-            </div>
-            <div class="box">
-                <div class="box-title">Дней осталось</div>
-                <div class="box-data">26 дней</div>
-            </div>
+            <div class="box"><div class="box-title">Статус</div><div class="box-data">● Активен</div></div>
+            <div class="box"><div class="box-title">Локация</div><div class="box-data">🇩🇪 Germany</div></div>
+            <div class="box"><div class="box-title">Лимит</div><div class="box-data">12.4 / 100 GB</div></div>
+            <div class="box"><div class="box-title">Дней</div><div class="box-data">26 дней</div></div>
         </div>
 
         <button class="btn btn-vpn" onclick="tgVpn()">🚀 ПОДКЛЮЧИТЬ VPN</button>
@@ -199,17 +96,17 @@
     </div>
 
     <div class="modal" id="amountModal">
-        <div style="text-align:center; margin-bottom:15px; font-weight: 700;">Сумма пополнения (₽)</div>
+        <div style="text-align:center; margin-bottom:15px; font-weight:700;">Сумма пополнения (₽)</div>
         <input type="number" id="sumInput" placeholder="Введите сумму">
         <button class="btn btn-pay" style="width:100%" onclick="openPayMethods()">ДАЛЕЕ</button>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
     </div>
 
     <div class="modal" id="methodModal">
-        <div style="text-align:center; margin-bottom:15px; font-weight: 700;">Способ оплаты</div>
+        <div style="text-align:center; margin-bottom:15px; font-weight:700;">Способ оплаты</div>
         <div class="pay-option" onclick="paySBP()">
-            <span style="font-weight: 700;">Перевод СБП</span>
-            <span style="font-size: 24px;">📲</span>
+            <span style="font-weight:700;">Перевод СБП</span>
+            <span>📲</span>
         </div>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Назад</div>
     </div>
@@ -217,6 +114,7 @@
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+        tg.ready();
 
         function openAmountModal() {
             tg.HapticFeedback.impactOccurred('medium');
@@ -226,19 +124,23 @@
 
         function openPayMethods() {
             let sum = document.getElementById('sumInput').value;
-            if (sum < 10) {
-                alert('Минимальная сумма 10₽');
-                return;
-            }
+            if (sum < 10) return alert('Минимальная сумма 10₽');
             document.getElementById('amountModal').classList.remove('active');
             document.getElementById('methodModal').classList.add('active');
         }
 
         function paySBP() {
-            tg.HapticFeedback.notificationOccurred('success');
             let sum = document.getElementById('sumInput').value;
-            alert('Переходим к оплате ' + sum + '₽ через СБП...');
-            // Сюда позже вставим ссылку на сервис
+            tg.HapticFeedback.notificationOccurred('success');
+            
+            // Отправляем данные в бот
+            tg.sendData(JSON.stringify({
+                action: "pay_sbp",
+                amount: sum
+            }));
+            
+            // Закрываем приложение, чтобы бот ответил
+            setTimeout(() => { tg.close(); }, 150);
         }
 
         function closeAll() {
@@ -249,17 +151,15 @@
 
         function tgVpn() {
             tg.HapticFeedback.impactOccurred('heavy');
-            alert('Генерация ключа...');
+            tg.showAlert('Генерация ключа...');
         }
 
         // Звезды
         const container = document.getElementById('stars');
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < 40; i++) {
             const star = document.createElement('div');
             star.className = 'star';
-            const size = Math.random() * 3 + 'px';
-            star.style.width = size;
-            star.style.height = size;
+            star.style.width = star.style.height = Math.random() * 3 + 'px';
             star.style.left = Math.random() * 100 + 'vw';
             star.style.animationDuration = Math.random() * 3 + 2 + 's';
             star.style.animationDelay = Math.random() * 5 + 's';
