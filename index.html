@@ -3,31 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Rocket-Boost VPN</title>
+    <title>Rocket VPN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #0f0f1b; color: white; margin: 0; padding: 20px; text-align: center; }
-        .card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 20px; margin-bottom: 20px; }
-        .balance-value { font-size: 48px; font-weight: 800; color: #ff00ff; margin: 10px 0; }
-        .btn { display: block; width: 100%; padding: 18px; margin: 12px 0; border: none; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; color: white; }
-        .btn-blue { background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); }
-        .btn-pink { background: linear-gradient(90deg, #f953c6 0%, #b91d73 100%); }
-        .status-container { display: flex; justify-content: space-between; gap: 10px; }
-        .status-box { flex: 1; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 18px; }
+        body { font-family: sans-serif; background: #0f0f1b; color: white; text-align: center; padding: 20px; }
+        .card { background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .balance { font-size: 40px; font-weight: bold; color: #ff00ff; }
+        .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
+        .btn-blue { background: #3a7bd5; }
+        .btn-pink { background: #b91d73; }
     </style>
 </head>
 <body>
     <div class="card">
-        <div style="opacity: 0.5;">Ваш баланс</div>
-        <div id="balance" class="balance-value">0.0 ₽</div>
-        <div id="user_id" style="opacity: 0.3; font-size: 12px;">ID: ...</div>
+        <div style="opacity: 0.5;">Баланс</div>
+        <div id="balance" class="balance">0.0 ₽</div>
+        <div id="user_id" style="opacity: 0.2; font-size: 10px;">ID: ...</div>
     </div>
-    <div class="status-container">
-        <div class="status-box"><div>Статус</div><div id="status" style="color: #00ff88;">● Активен</div></div>
-        <div class="status-box"><div>Доступно</div><div id="days">0 дней</div></div>
-    </div>
-    <button class="btn btn-blue" onclick="requestVPN()">🚀 АВТО-ПОДКЛЮЧЕНИЕ</button>
+    <button class="btn btn-blue" onclick="requestVPN()">🚀 ПОДКЛЮЧИТЬ VPN</button>
     <button class="btn btn-pink" onclick="buySub()">💎 КУПИТЬ ПОДПИСКУ</button>
     <script>
         const tg = window.Telegram.WebApp;
@@ -35,7 +28,6 @@
         const params = new URLSearchParams(window.location.search);
         document.getElementById('balance').innerText = (params.get('balance') || '0.0') + ' ₽';
         document.getElementById('user_id').innerText = 'ID: ' + (params.get('id') || '...');
-        document.getElementById('days').innerText = (params.get('days') || '0') + ' дней';
         function requestVPN() { tg.sendData(JSON.stringify({action: "request_vpn_button"})); tg.close(); }
         function buySub() { tg.sendData(JSON.stringify({action: "buy_subscription", months: 1, price: 300})); tg.close(); }
     </script>
