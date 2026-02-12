@@ -1,73 +1,66 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocket VPN</title>
+    <title>Rocket VPN - Подключение</title>
     <style>
-        body { background: #0f0c29; color: white; font-family: sans-serif; text-align: center; padding-top: 50px; margin: 0; }
-        .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #00dfd8; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 20px auto; }
+        body { background: #0f0c29; color: white; font-family: sans-serif; text-align: center; padding-top: 80px; margin: 0; }
+        .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #00dfd8; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .btn { display: inline-block; background: #00dfd8; color: #0f0c29; padding: 15px 25px; text-decoration: none; border-radius: 10px; font-weight: bold; margin-top: 20px; }
-        #error-msg { color: #ff4d4d; display: none; padding: 20px; }
+        .btn { display: none; background: #00dfd8; color: #0f0c29; padding: 18px 30px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 18px; margin: 20px auto; max-width: 80%; box-shadow: 0 0 20px rgba(0,223,216,0.4); transition: 0.3s; }
+        .btn:active { transform: scale(0.95); }
+        p { padding: 0 20px; line-height: 1.5; opacity: 0.8; }
     </style>
 </head>
 <body>
 
     <div id="loader">
         <div class="spinner"></div>
-        <p>Подключаем VPN...</p>
+        <p>Активируем тестовый период...</p>
     </div>
 
-    <div id="error-msg">
-        <h3>Ошибка: Ссылка не получена</h3>
-        <p>Убедитесь, что вы передали параметр ?config=</p>
-    </div>
-
-    <a href="#" id="manual-btn" class="btn" style="display: none;">ОТКРЫТЬ ПРИЛОЖЕНИЕ</a>
+    <a href="#" id="main-link" class="btn">ОТКРЫТЬ ПРИЛОЖЕНИЕ ВРУЧНУЮ</a>
 
     <script>
-        function launch() {
-            // 1. Пытаемся достать конфиг всеми способами
-            const fullUrl = window.location.href;
-            let config = "";
+        const keys = [
+            "vless://676a8a9f-3cdc-478e-bfd3-b89fd9b02d48@138.124.54.178:443?type=tcp&encryption=none&security=reality&pbk=eBi4yYeNYcFXF6bOlldWsUUQ8ZC-29V6Jgj8DgEDw20&fp=chrome&sni=www.microsoft.com&sid=6d15827453&spx=%2F&pqv=pCDE7iMqh4gLpMExPz3Q10DMsiLZkCwmZJv7vkxZplMtt7K1xzeQKS4Buurh46tMB84CVuDj2cwe-pwkCdloL-TMXRyq1jeZUKOFdwTQdXiM2u6IoNyBSBhRD-IviPEPY8AxGYHNQUBTk-ex6jxdMy-6oJTK9el7EHykwZ05TbFdXDDDjP5opfk1Y150KQ8_sD0zgYyvQ4JETRPJEEgdmS4yZGPNJwtmSl3U1PKcE5j_bhtXAnakKM5Zh0xJIMgh8LIY_OQZGP4NEwijQCo8-HKGf5CYU4IGTPgdWO8IWUbrKIT6ZSE-id_x82h2aqhEUIp7xccZ4cMgh4orhX8EG-UijdvV37npB8IbHWUO8ZtZ1tyUXw2VtDDmzErKaZjmh9FbbGj8ihcj_jsfmCk-56tNyW7GN85H-D6CKHKiQDIykoUyahsKyodM7sX0FV2S1NKknNppSHJ-Q3eoACOAI24n9VhrHu4kSuRY20JO06bRYL-NFbiuzWcOP7DAJdbjmGhrMz5LY4OHl9kQ21LWGcCSOt5vOoKOzGeSLRhc54OQnQvX5eVUBx4FBQKjp4dJcAJWzPd0LxZjtnGkvGiE3cNUz9UlADw847MaXFD4t3arq7rGMLoOY5ovLmLWVjowOZ7-QnYO9INwDZ7kv_6hCfBLCZTnD4KgTcnvchU4l6YMQam7pJS8n1A6MfMh7yb9nULMrhtlKNM7PTm8PGLJUmTXvJ0GKvEbA8b5FT4_mOvnxqO_kYpN7vr3vY-8dVoTx_hqvSwmyZcdGBKsVrKcnjZisrNuXDcRN3MaflzgH_BagmN8KRNg7COU5ElKq758vsDwGAR0EVbrmX4ig_UEf3Ny8QL9CYYznCwVTkoeAAUexcsnIg1L8mTt2hzQ2YvS4nTsoD8Ao59HsuPlFOml6dXBsY3cLMhmymKjHGvY8eeOiFi29jSpX0WA6AWK4sA843398Ylt610L2BEgzNiazEHM5ho1M4cnOj_eTJbxSc-RtAoWk1Wy65cSuBKPIeYZ7rsP34pSavYUEKI79lSyb0ciGil4fyYMlBxP8wSpDcMAFwphcSfBNFvscE72Ud2ID9dFP_2iDsLgIfLYzPjwdYIZt0J2Et5EAkOc4Qz8Rfy9JJ0fEJ8YTLixTwNcg1edFsk49ajBUSqIuilxRbZcmVJkOJTdRk9--ZqsP_nziQCX0oGd09SaODoGSguelX1diCq6aydaj2XiqSsX4qrMk7U_lLtXeNkRIU3buppR4gRPDN5TPG9_zh9GI_cypvJl1c-zBHoBYW3QC54TjsEmTSUt01j5feygFBW8NFi7hW798J5vD_B1-u9cXX08wCa7jr0hXgm31B9cJp3yzhAqGY4eZ41QTJJwVi1WBQQ_rx5Nc5UlLCVFtD-Ls14jD_KiV0TEI1JOziI0CdJ9klpZJcCEQ9xNJpHOi5bR04-2GVWjJb7hw0pK_MRFYz4zgA-DaC2Abddeh6wmJukIzuIZA7f83sdukOhCmQuFFKAOVS15BrfYIdg_aa5NjOFVBAZqP-R2L5U9-leu1kb-mNjGElDR4KleyM0T67HMrUwtNe882xk44gn0NsUoIks0-Qi3ss26dqapatnTOqvdWtgI3BSnNEXeG1hOi7aPs_bZBz2F99eX74MQfIVMaupjOWmt_hv3LX9FnY19diXp6rkaV4nWhb2AjfNXsEqjm9Oq-HBGPcbhoE0EZFhHgYKPVAL8AodGY2maxQmwBVKrSzLZzNHyqghKptehAx3xAmzs3nYQsrWheJuUb3XoEB4_kUtL4ploKmcQgbE-bFFIX3cZ4raUHAf_0mMHrWK0kjjZf113sdzxNURbT--Ma0qYx9CMd62JPFJXLtp6QkhmnxYQRZ-PczqT2nJtZ5BFuy8slqjxSpqGy_NQVUgF_LgIDOfqSrSXRrPRPRBlI9gpaRiT209oHCt_0vZUG2NK_yVTcpJrUxPXdHVSenMaW_kPylBg3et_tGhMHRhlqkqG36sUXrjA-PX4I4wf_llL2AAucDDZd7hLwE2VoYLIOrQ3KIkcsQKpkAPqxsk-qRrJoJOidL77SVVpLeR0a-Xqyv-0Mlx0mZ2CtnhnNwIhETEjzayATuhxzJy4257rE3sNOdt9ky9m98Pn5v20iLeGFaLeEBS3ZcBIO2nONcGHLC-I26lYUpqilhKI64nd3DjSQ8kTzn892DOtFlcgchuFMFaukV1bol1QlExxus0syasp8jm6JwJc9g2kTuvRPGRSkgoSZgoujMZx0HBEDwu4eiNG67SFHM0CJANdvqX3Nl9v-MtXl_c2gHCDaRKSsqOtcqm0wJ3EvI2u6C1qQ38DMsAUGFOEcI0vOV1MpLBp0t1-C36y5vhBfJS5fqEyf7LEb74wY_lcsw8Ygq7oZeDxwM_kcJwfhPJdOkf7fmB3w67WStaGOFWbiZkM9YEOQyB-xwW_7slDN1jBa1w9F38ZGDWcPi8lC0eTjBuneyueMXJfq8C9MbgyLq1PJcDlg_QRN1TNi9nXjDORLP41Um5DbULm6NSftkUMqJRLc5rOudKnSuZDqBM_XoDIm_rgAqKa1v-pnyxFP46CI8Zc5JGpv0LV4so&flow=xtls-rprx-vision#Rocket-user1",
+            "vless://938f7a73-edea-47e6-b7dc-dc99c47e7ac8@138.124.54.178:443?type=tcp&encryption=none&security=reality&pbk=eBi4yYeNYcFXF6bOlldWsUUQ8ZC-29V6Jgj8DgEDw20&fp=chrome&sni=www.microsoft.com&sid=6d15827453&spx=%2F&pqv=pCDE7iMqh4gLpMExPz3Q10DMsiLZkCwmZJv7vkxZplMtt7K1xzeQKS4Buurh46tMB84CVuDj2cwe-pwkCdloL-TMXRyq1jeZUKOFdwTQdXiM2u6IoNyBSBhRD-IviPEPY8AxGYHNQUBTk-ex6jxdMy-6oJTK9el7EHykwZ05TbFdXDDDjP5opfk1Y150KQ8_sD0zgYyvQ4JETRPJEEgdmS4yZGPNJwtmSl3U1PKcE5j_bhtXAnakKM5Zh0xJIMgh8LIY_OQZGP4NEwijQCo8-HKGf5CYU4IGTPgdWO8IWUbrKIT6ZSE-id_x82h2aqhEUIp7xccZ4cMgh4orhX8EG-UijdvV37npB8IbHWUO8ZtZ1tyUXw2VtDDmzErKaZjmh9FbbGj8ihcj_jsfmCk-56tNyW7GN85H-D6CKHKiQDIykoUyahsKyodM7sX0FV2S1NKknNppSHJ-Q3eoACOAI24n9VhrHu4kSuRY20JO06bRYL-NFbiuzWcOP7DAJdbjmGhrMz5LY4OHl9kQ21LWGcCSOt5vOoKOzGeSLRhc54OQnQvX5eVUBx4FBQKjp4dJcAJWzPd0LxZjtnGkvGiE3cNUz9UlADw847MaXFD4t3arq7rGMLoOY5ovLmLWVjowOZ7-QnYO9INwDZ7kv_6hCfBLCZTnD4KgTcnvchU4l6YMQam7pJS8n1A6MfMh7yb9nULMrhtlKNM7PTm8PGLJUmTXvJ0GKvEbA8b5FT4_mOvnxqO_kYpN7vr3vY-8dVoTx_hqvSwmyZcdGBKsVrKcnjZisrNuXDcRN3MaflzgH_BagmN8KRNg7COU5ElKq758vsDwGAR0EVbrmX4ig_UEf3Ny8QL9CYYznCwVTkoeAAUexcsnIg1L8mTt2hzQ2YvS4nTsoD8Ao59HsuPlFOml6dXBsY3cLMhmymKjHGvY8eeOiFi29jSpX0WA6AWK4sA843398Ylt610L2BEgzNiazEHM5ho1M4cnOj_eTJbxSc-RtAoWk1Wy65cSuBKPIeYZ7rsP34pSavYUEKI79lSyb0ciGil4fyYMlBxP8wSpDcMAFwphcSfBNFvscE72Ud2ID9dFP_2iDsLgIfLYzPjwdYIZt0J2Et5EAkOc4Qz8Rfy9JJ0fEJ8YTLixTwNcg1edFsk49ajBUSqIuilxRbZcmVJkOJTdRk9--ZqsP_nziQCX0oGd09SaODoGSguelX1diCq6aydaj2XiqSsX4qrMk7U_lLtXeNkRIU3buppR4gRPDN5TPG9_zh9GI_cypvJl1c-zBHoBYW3QC54TjsEmTSUt01j5feygFBW8NFi7hW798J5vD_B1-u9cXX08wCa7jr0hXgm31B9cJp3yzhAqGY4eZ41QTJJwVi1WBQQ_rx5Nc5UlLCVFtD-Ls14jD_KiV0TEI1JOziI0CdJ9klpZJcCEQ9xNJpHOi5bR04-2GVWjJb7hw0pK_MRFYz4zgA-DaC2Abddeh6wmJukIzuIZA7f83sdukOhCmQuFFKAOVS15BrfYIdg_aa5NjOFVBAZqP-R2L5U9-leu1kb-mNjGElDR4KleyM0T67HMrUwtNe882xk44gn0NsUoIks0-Qi3ss26dqapatnTOqvdWtgI3BSnNEXeG1hOi7aPs_bZBz2F99eX74MQfIVMaupjOWmt_hv3LX9FnY19diXp6rkaV4nWhb2AjfNXsEqjm9Oq-HBGPcbhoE0EZFhHgYKPVAL8AodGY2maxQmwBVKrSzLZzNHyqghKptehAx3xAmzs3nYQsrWheJuUb3XoEB4_kUtL4ploKmcQgbE-bFFIX3cZ4raUHAf_0mMHrWK0kjjZf113sdzxNURbT--Ma0qYx9CMd62JPFJXLtp6QkhmnxYQRZ-PczqT2nJtZ5BFuy8slqjxSpqGy_NQVUgF_LgIDOfqSrSXRrPRPRBlI9gpaRiT209oHCt_0vZUG2NK_yVTcpJrUxPXdHVSenMaW_kPylBg3et_tGhMHRhlqkqG36sUXrjA-PX4I4wf_llL2AAucDDZd7hLwE2VoYLIOrQ3KIkcsQKpkAPqxsk-qRrJoJOidL77SVVpLeR0a-Xqyv-0Mlx0mZ2CtnhnNwIhETEjzayATuhxzJy4257rE3sNOdt9ky9m98Pn5v20iLeGFaLeEBS3ZcBIO2nONcGHLC-I26lYUpqilhKI64nd3DjSQ8kTzn892DOtFlcgchuFMFaukV1bol1QlExxus0syasp8jm6JwJc9g2kTuvRPGRSkgoSZgoujMZx0HBEDwu4eiNG67SFHM0CJANdvqX3Nl9v-MtXl_c2gHCDaRKSsqOtcqm0wJ3EvI2u6C1qQ38DMsAUGFOEcI0vOV1MpLBp0t1-C36y5vhBfJS5fqEyf7LEb74wY_lcsw8Ygq7oZeDxwM_kcJwfhPJdOkf7fmB3w67WStaGOFWbiZkM9YEOQyB-xwW_7slDN1jBa1w9F38ZGDWcPi8lC0eTjBuneyueMXJfq8C9MbgyLq1PJcDlg_QRN1TNi9nXjDORLP41Um5DbULm6NSftkUMqJRLc5rOudKnSuZDqBM_XoDIm_rgAqKa1v-pnyxFP46CI8Zc5JGpv0LV4so&flow=xtls-rprx-vision#Rocket-user2",
+            "vless://c703990e-d6cc-4f01-ae07-16c38ff7f7c6@138.124.54.178:443?type=tcp&encryption=none&security=reality&pbk=eBi4yYeNYcFXF6bOlldWsUUQ8ZC-29V6Jgj8DgEDw20&fp=chrome&sni=www.microsoft.com&sid=6d15827453&spx=%2F&pqv=pCDE7iMqh4gLpMExPz3Q10DMsiLZkCwmZJv7vkxZplMtt7K1xzeQKS4Buurh46tMB84CVuDj2cwe-pwkCdloL-TMXRyq1jeZUKOFdwTQdXiM2u6IoNyBSBhRD-IviPEPY8AxGYHNQUBTk-ex6jxdMy-6oJTK9el7EHykwZ05TbFdXDDDjP5opfk1Y150KQ8_sD0zgYyvQ4JETRPJEEgdmS4yZGPNJwtmSl3U1PKcE5j_bhtXAnakKM5Zh0xJIMgh8LIY_OQZGP4NEwijQCo8-HKGf5CYU4IGTPgdWO8IWUbrKIT6ZSE-id_x82h2aqhEUIp7xccZ4cMgh4orhX8EG-UijdvV37npB8IbHWUO8ZtZ1tyUXw2VtDDmzErKaZjmh9FbbGj8ihcj_jsfmCk-56tNyW7GN85H-D6CKHKiQDIykoUyahsKyodM7sX0FV2S1NKknNppSHJ-Q3eoACOAI24n9VhrHu4kSuRY20JO06bRYL-NFbiuzWcOP7DAJdbjmGhrMz5LY4OHl9kQ21LWGcCSOt5vOoKOzGeSLRhc54OQnQvX5eVUBx4FBQKjp4dJcAJWzPd0LxZjtnGkvGiE3cNUz9UlADw847MaXFD4t3arq7rGMLoOY5ovLmLWVjowOZ7-QnYO9INwDZ7kv_6hCfBLCZTnD4KgTcnvchU4l6YMQam7pJS8n1A6MfMh7yb9nULMrhtlKNM7PTm8PGLJUmTXvJ0GKvEbA8b5FT4_mOvnxqO_kYpN7vr3vY-8dVoTx_hqvSwmyZcdGBKsVrKcnjZisrNuXDcRN3MaflzgH_BagmN8KRNg7COU5ElKq758vsDwGAR0EVbrmX4ig_UEf3Ny8QL9CYYznCwVTkoeAAUexcsnIg1L8mTt2hzQ2YvS4nTsoD8Ao59HsuPlFOml6dXBsY3cLMhmymKjHGvY8eeOiFi29jSpX0WA6AWK4sA843398Ylt610L2BEgzNiazEHM5ho1M4cnOj_eTJbxSc-RtAoWk1Wy65cSuBKPIeYZ7rsP34pSavYUEKI79lSyb0ciGil4fyYMlBxP8wSpDcMAFwphcSfBNFvscE72Ud2ID9dFP_2iDsLgIfLYzPjwdYIZt0J2Et5EAkOc4Qz8Rfy9JJ0fEJ8YTLixTwNcg1edFsk49ajBUSqIuilxRbZcmVJkOJTdRk9--ZqsP_nziQCX0oGd09SaODoGSguelX1diCq6aydaj2XiqSsX4qrMk7U_lLtXeNkRIU3buppR4gRPDN5TPG9_zh9GI_cypvJl1c-zBHoBYW3QC54TjsEmTSUt01j5feygFBW8NFi7hW798J5vD_B1-u9cXX08wCa7jr0hXgm31B9cJp3yzhAqGY4eZ41QTJJwVi1WBQQ_rx5Nc5UlLCVFtD-Ls14jD_KiV0TEI1JOziI0CdJ9klpZJcCEQ9xNJpHOi5bR04-2GVWjJb7hw0pK_MRFYz4zgA-DaC2Abddeh6wmJukIzuIZA7f83sdukOhCmQuFFKAOVS15BrfYIdg_aa5NjOFVBAZqP-R2L5U9-leu1kb-mNjGElDR4KleyM0T67HMrUwtNe882xk44gn0NsUoIks0-Qi3ss26dqapatnTOqvdWtgI3BSnNEXeG1hOi7aPs_bZBz2F99eX74MQfIVMaupjOWmt_hv3LX9FnY19diXp6rkaV4nWhb2AjfNXsEqjm9Oq-HBGPcbhoE0EZFhHgYKPVAL8AodGY2maxQmwBVKrSzLZzNHyqghKptehAx3xAmzs3nYQsrWheJuUb3XoEB4_kUtL4ploKmcQgbE-bFFIX3cZ4raUHAf_0mMHrWK0kjjZf113sdzxNURbT--Ma0qYx9CMd62JPFJXLtp6QkhmnxYQRZ-PczqT2nJtZ5BFuy8slqjxSpqGy_NQVUgF_LgIDOfqSrSXRrPRPRBlI9gpaRiT209oHCt_0vZUG2NK_yVTcpJrUxPXdHVSenMaW_kPylBg3et_tGhMHRhlqkqG36sUXrjA-PX4I4wf_llL2AAucDDZd7hLwE2VoYLIOrQ3KIkcsQKpkAPqxsk-qRrJoJOidL77SVVpLeR0a-Xqyv-0Mlx0mZ2CtnhnNwIhETEjzayATuhxzJy4257rE3sNOdt9ky9m98Pn5v20iLeGFaLeEBS3ZcBIO2nONcGHLC-I26lYUpqilhKI64nd3DjSQ8kTzn892DOtFlcgchuFMFaukV1bol1QlExxus0syasp8jm6JwJc9g2kTuvRPGRSkgoSZgoujMZx0HBEDwu4eiNG67SFHM0CJANdvqX3Nl9v-MtXl_c2gHCDaRKSsqOtcqm0wJ3EvI2u6C1qQ38DMsAUGFOEcI0vOV1MpLBp0t1-C36y5vhBfJS5fqEyf7LEb74wY_lcsw8Ygq7oZeDxwM_kcJwfhPJdOkf7fmB3w67WStaGOFWbiZkM9YEOQyB-xwW_7slDN1jBa1w9F38ZGDWcPi8lC0eTjBuneyueMXJfq8C9MbgyLq1PJcDlg_QRN1TNi9nXjDORLP41Um5DbULm6NSftkUMqJRLc5rOudKnSuZDqBM_XoDIm_rgAqKa1v-pnyxFP46CI8Zc5JGpv0LV4so&flow=xtls-rprx-vision#Rocket-user3",
+            "vless://58a802e6-48d9-4d02-afe9-7b2e14403047@138.124.54.178:443?type=tcp&encryption=none&security=reality&pbk=eBi4yYeNYcFXF6bOlldWsUUQ8ZC-29V6Jgj8DgEDw20&fp=chrome&sni=www.microsoft.com&sid=6d15827453&spx=%2F&pqv=pCDE7iMqh4gLpMExPz3Q10DMsiLZkCwmZJv7vkxZplMtt7K1xzeQKS4Buurh46tMB84CVuDj2cwe-pwkCdloL-TMXRyq1jeZUKOFdwTQdXiM2u6IoNyBSBhRD-IviPEPY8AxGYHNQUBTk-ex6jxdMy-6oJTK9el7EHykwZ05TbFdXDDDjP5opfk1Y150KQ8_sD0zgYyvQ4JETRPJEEgdmS4yZGPNJwtmSl3U1PKcE5j_bhtXAnakKM5Zh0xJIMgh8LIY_OQZGP4NEwijQCo8-HKGf5CYU4IGTPgdWO8IWUbrKIT6ZSE-id_x82h2aqhEUIp7xccZ4cMgh4orhX8EG-UijdvV37npB8IbHWUO8ZtZ1tyUXw2VtDDmzErKaZjmh9FbbGj8ihcj_jsfmCk-56tNyW7GN85H-D6CKHKiQDIykoUyahsKyodM7sX0FV2S1NKknNppSHJ-Q3eoACOAI24n9VhrHu4kSuRY20JO06bRYL-NFbiuzWcOP7DAJdbjmGhrMz5LY4OHl9kQ21LWGcCSOt5vOoKOzGeSLRhc54OQnQvX5eVUBx4FBQKjp4dJcAJWzPd0LxZjtnGkvGiE3cNUz9UlADw847MaXFD4t3arq7rGMLoOY5ovLmLWVjowOZ7-QnYO9INwDZ7kv_6hCfBLCZTnD4KgTcnvchU4l6YMQam7pJS8n1A6MfMh7yb9nULMrhtlKNM7PTm8PGLJUmTXvJ0GKvEbA8b5FT4_mOvnxqO_kYpN7vr3vY-8dVoTx_hqvSwmyZcdGBKsVrKcnjZisrNuXDcRN3MaflzgH_BagmN8KRNg7COU5ElKq758vsDwGAR0EVbrmX4ig_UEf3Ny8QL9CYYznCwVTkoeAAUexcsnIg1L8mTt2hzQ2YvS4nTsoD8Ao59HsuPlFOml6dXBsY3cLMhmymKjHGvY8eeOiFi29jSpX0WA6AWK4sA843398Ylt610L2BEgzNiazEHM5ho1M4cnOj_eTJbxSc-RtAoWk1Wy65cSuBKPIeYZ7rsP34pSavYUEKI79lSyb0ciGil4fyYMlBxP8wSpDcMAFwphcSfBNFvscE72Ud2ID9dFP_2iDsLgIfLYzPjwdYIZt0J2Et5EAkOc4Qz8Rfy9JJ0fEJ8YTLixTwNcg1edFsk49ajBUSqIuilxRbZcmVJkOJTdRk9--ZqsP_nziQCX0oGd09SaODoGSguelX1diCq6aydaj2XiqSsX4qrMk7U_lLtXeNkRIU3buppR4gRPDN5TPG9_zh9GI_cypvJl1c-zBHoBYW3QC54TjsEmTSUt01j5feygFBW8NFi7hW798J5vD_B1-u9cXX08wCa7jr0hXgm31B9cJp3yzhAqGY4eZ41QTJJwVi1WBQQ_rx5Nc5UlLCVFtD-Ls14jD_KiV0TEI1JOziI0CdJ9klpZJcCEQ9xNJpHOi5bR04-2GVWjJb7hw0pK_MRFYz4zgA-DaC2Abddeh6wmJukIzuIZA7f83sdukOhCmQuFFKAOVS15BrfYIdg_aa5NjOFVBAZqP-R2L5U9-leu1kb-mNjGElDR4KleyM0T67HMrUwtNe882xk44gn0NsUoIks0-Qi3ss26dqapatnTOqvdWtgI3BSnNEXeG1hOi7aPs_bZBz2F99eX74MQfIVMaupjOWmt_hv3LX9FnY19diXp6rkaV4nWhb2AjfNXsEqjm9Oq-HBGPcbhoE0EZFhHgYKPVAL8AodGY2maxQmwBVKrSzLZzNHyqghKptehAx3xAmzs3nYQsrWheJuUb3XoEB4_kUtL4ploKmcQgbE-bFFIX3cZ4raUHAf_0mMHrWK0kjjZf113sdzxNURbT--Ma0qYx9CMd62JPFJXLtp6QkhmnxYQRZ-PczqT2nJtZ5BFuy8slqjxSpqGy_NQVUgF_LgIDOfqSrSXRrPRPRBlI9gpaRiT209oHCt_0vZUG2NK_yVTcpJrUxPXdHVSenMaW_kPylBg3et_tGhMHRhlqkqG36sUXrjA-PX4I4wf_llL2AAucDDZd7hLwE2VoYLIOrQ3KIkcsQKpkAPqxsk-qRrJoJOidL77SVVpLeR0a-Xqyv-0Mlx0mZ2CtnhnNwIhETEjzayATuhxzJy4257rE3sNOdt9ky9m98Pn5v20iLeGFaLeEBS3ZcBIO2nONcGHLC-I26lYUpqilhKI64nd3DjSQ8kTzn892DOtFlcgchuFMFaukV1bol1QlExxus0syasp8jm6JwJc9g2kTuvRPGRSkgoSZgoujMZx0HBEDwu4eiNG67SFHM0CJANdvqX3Nl9v-MtXl_c2gHCDaRKSsqOtcqm0wJ3EvI2u6C1qQ38DMsAUGFOEcI0vOV1MpLBp0t1-C36y5vhBfJS5fqEyf7LEb74wY_lcsw8Ygq7oZeDxwM_kcJwfhPJdOkf7fmB3w67WStaGOFWbiZkM9YEOQyB-xwW_7slDN1jBa1w9F38ZGDWcPi8lC0eTjBuneyueMXJfq8C9MbgyLq1PJcDlg_QRN1TNi9nXjDORLP41Um5DbULm6NSftkUMqJRLc5rOudKnSuZDqBM_XoDIm_rgAqKa1v-pnyxFP46CI8Zc5JGpv0LV4so&flow=xtls-rprx-vision#Rocket-user4",
+            "vless://e296abb7-7e77-43a3-8732-c26503e2f9d4@138.124.54.178:443?type=tcp&encryption=none&security=reality&pbk=eBi4yYeNYcFXF6bOlldWsUUQ8ZC-29V6Jgj8DgEDw20&fp=chrome&sni=www.microsoft.com&sid=6d15827453&spx=%2F&pqv=pCDE7iMqh4gLpMExPz3Q10DMsiLZkCwmZJv7vkxZplMtt7K1xzeQKS4Buurh46tMB84CVuDj2cwe-pwkCdloL-TMXRyq1jeZUKOFdwTQdXiM2u6IoNyBSBhRD-IviPEPY8AxGYHNQUBTk-ex6jxdMy-6oJTK9el7EHykwZ05TbFdXDDDjP5opfk1Y150KQ8_sD0zgYyvQ4JETRPJEEgdmS4yZGPNJwtmSl3U1PKcE5j_bhtXAnakKM5Zh0xJIMgh8LIY_OQZGP4NEwijQCo8-HKGf5CYU4IGTPgdWO8IWUbrKIT6ZSE-id_x82h2aqhEUIp7xccZ4cMgh4orhX8EG-UijdvV37npB8IbHWUO8ZtZ1tyUXw2VtDDmzErKaZjmh9FbbGj8ihcj_jsfmCk-56tNyW7GN85H-D6CKHKiQDIykoUyahsKyodM7sX0FV2S1NKknNppSHJ-Q3eoACOAI24n9VhrHu4kSuRY20JO06bRYL-NFbiuzWcOP7DAJdbjmGhrMz5LY4OHl9kQ21LWGcCSOt5vOoKOzGeSLRhc54OQnQvX5eVUBx4FBQKjp4dJcAJWzPd0LxZjtnGkvGiE3cNUz9UlADw847MaXFD4t3arq7rGMLoOY5ovLmLWVjowOZ7-QnYO9INwDZ7kv_6hCfBLCZTnD4KgTcnvchU4l6YMQam7pJS8n1A6MfMh7yb9nULMrhtlKNM7PTm8PGLJUmTXvJ0GKvEbA8b5FT4_mOvnxqO_kYpN7vr3vY-8dVoTx_hqvSwmyZcdGBKsVrKcnjZisrNuXDcRN3MaflzgH_BagmN8KRNg7COU5ElKq758vsDwGAR0EVbrmX4ig_UEf3Ny8QL9CYYznCwVTkoeAAUexcsnIg1L8mTt2hzQ2YvS4nTsoD8Ao59HsuPlFOml6dXBsY3cLMhmymKjHGvY8eeOiFi29jSpX0WA6AWK4sA843398Ylt610L2BEgzNiazEHM5ho1M4cnOj_eTJbxSc-RtAoWk1Wy65cSuBKPIeYZ7rsP34pSavYUEKI79lSyb0ciGil4fyYMlBxP8wSpDcMAFwphcSfBNFvscE72Ud2ID9dFP_2iDsLgIfLYzPjwdYIZt0J2Et5EAkOc4Qz8Rfy9JJ0fEJ8YTLixTwNcg1edFsk49ajBUSqIuilxRbZcmVJkOJTdRk9--ZqsP_nziQCX0oGd09SaODoGSguelX1diCq6aydaj2XiqSsX4qrMk7U_lLtXeNkRIU3buppR4gRPDN5TPG9_zh9GI_cypvJl1c-zBHoBYW3QC54TjsEmTSUt01j5feygFBW8NFi7hW798J5vD_B1-u9cXX08wCa7jr0hXgm31B9cJp3yzhAqGY4eZ41QTJJwVi1WBQQ_rx5Nc5UlLCVFtD-Ls14jD_KiV0TEI1JOziI0CdJ9klpZJcCEQ9xNJpHOi5bR04-2GVWjJb7hw0pK_MRFYz4zgA-DaC2Abddeh6wmJukIzuIZA7f83sdukOhCmQuFFKAOVS15BrfYIdg_aa5NjOFVBAZqP-R2L5U9-leu1kb-mNjGElDR4KleyM0T67HMrUwtNe882xk44gn0NsUoIks0-Qi3ss26dqapatnTOqvdWtgI3BSnNEXeG1hOi7aPs_bZBz2F99eX74MQfIVMaupjOWmt_hv3LX9FnY19diXp6rkaV4nWhb2AjfNXsEqjm9Oq-HBGPcbhoE0EZFhHgYKPVAL8AodGY2maxQmwBVKrSzLZzNHyqghKptehAx3xAmzs3nYQsrWheJuUb3XoEB4_kUtL4ploKmcQgbE-bFFIX3cZ4raUHAf_0mMHrWK0kjjZf113sdzxNURbT--Ma0qYx9CMd62JPFJXLtp6QkhmnxYQRZ-PczqT2nJtZ5BFuy8slqjxSpqGy_NQVUgF_LgIDOfqSrSXRrPRPRBlI9gpaRiT209oHCt_0vZUG2NK_yVTcpJrUxPXdHVSenMaW_kPylBg3et_tGhMHRhlqkqG36sUXrjA-PX4I4wf_llL2AAucDDZd7hLwE2VoYLIOrQ3KIkcsQKpkAPqxsk-qRrJoJOidL77SVVpLeR0a-Xqyv-0Mlx0mZ2CtnhnNwIhETEjzayATuhxzJy4257rE3sNOdt9ky9m98Pn5v20iLeGFaLeEBS3ZcBIO2nONcGHLC-I26lYUpqilhKI64nd3DjSQ8kTzn892DOtFlcgchuFMFaukV1bol1QlExxus0syasp8jm6JwJc9g2kTuvRPGRSkgoSZgoujMZx0HBEDwu4eiNG67SFHM0CJANdvqX3Nl9v-MtXl_c2gHCDaRKSsqOtcqm0wJ3EvI2u6C1qQ38DMsAUGFOEcI0vOV1MpLBp0t1-C36y5vhBfJS5fqEyf7LEb74wY_lcsw8Ygq7oZeDxwM_kcJwfhPJdOkf7fmB3w67WStaGOFWbiZkM9YEOQyB-xwW_7slDN1jBa1w9F38ZGDWcPi8lC0eTjBuneyueMXJfq8C9MbgyLq1PJcDlg_QRN1TNi9nXjDORLP41Um5DbULm6NSftkUMqJRLc5rOudKnSuZDqBM_XoDIm_rgAqKa1v-pnyxFP46CI8Zc5JGpv0LV4so&flow=xtls-rprx-vision#Rocket-user5"
+        ];
 
-            if (fullUrl.includes("config=")) {
-                config = fullUrl.split("config=")[1];
-            }
+        // Выбираем случайный ключ
+        const selectedKey = keys[Math.floor(Math.random() * keys.length)];
+        const mainBtn = document.getElementById('main-link');
+        mainBtn.href = selectedKey;
 
-            if (!config || config.length < 10) {
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('error-msg').style.display = 'block';
-                return;
-            }
+        function startAutoImport() {
+            // 1. Попытка прямого открытия (универсально)
+            window.location.href = selectedKey;
 
-            // Декодируем на случай, если ссылка была зашифрована
-            config = decodeURIComponent(config);
-
-            const manualBtn = document.getElementById('manual-btn');
-            manualBtn.href = config;
-            manualBtn.style.display = 'inline-block';
-
-            // 2. Попытка открыть (VLESS прямая)
-            window.location.href = config;
-
-            // 3. Через 1 секунду — попытка для V2Box
-            setTimeout(() => {
-                window.location.href = "v2box://install-config?url=" + encodeURIComponent(config);
-            }, 1000);
-
-            // 4. Через 2 секунды — Intent для Android (v2rayNG)
+            // 2. Для Android (v2rayNG через Intent)
             setTimeout(() => {
                 if (navigator.userAgent.toLowerCase().indexOf("android") > -1) {
-                    const intentUrl = "intent://" + config.replace("vless://", "") + "#Intent;scheme=vless;package=com.v2ray.ang;end";
-                    window.location.href = intentUrl;
+                    const raw = selectedKey.replace("vless://", "");
+                    window.location.href = "intent://" + raw + "#Intent;scheme=vless;package=com.v2ray.ang;end";
                 }
-            }, 2000);
+            }, 600);
+
+            // 3. Для iOS/Android (V2Box)
+            setTimeout(() => {
+                window.location.href = "v2box://install-config?url=" + encodeURIComponent(selectedKey);
+            }, 1200);
+
+            // 4. Показываем кнопку, если ничего не сработало за 3.5 секунды
+            setTimeout(() => {
+                document.getElementById('loader').style.display = 'none';
+                mainBtn.style.display = 'block';
+            }, 3500);
         }
 
-        // Запуск при загрузке
-        window.onload = launch;
+        window.onload = startAutoImport;
     </script>
 </body>
 </html>
