@@ -1,34 +1,53 @@
-<script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const enc = urlParams.get('enc'); // Здесь теперь зашифрована КОРОТКАЯ ссылка
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rocket VPN - Подключение</title>
+    <style>
+        body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+        .card { background: #161b22; padding: 30px; border-radius: 20px; border: 1px solid #00dfd8; width: 80%; }
+        .loader { width: 40px; height: 40px; border: 4px solid #FFF; border-bottom-color: #00dfd8; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg) } 100% { transform: rotate(360deg) } }
+        .btn { display: none; background: #00dfd8; color: #000; padding: 15px; text-decoration: none; border-radius: 10px; font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="loader"></div>
+        <h2 id="st">Настройка...</h2>
+        <p id="msg">Копируем данные подписки</p>
+        <a href="#" id="openBtn" class="btn">ОТКРЫТЬ VPN ПРИЛОЖЕНИЕ</a>
+    </div>
 
-    async function process() {
-        if (!enc) return;
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const enc = urlParams.get('enc');
 
-        const subUrl = atob(enc); // Получаем https://твой-домен.com/sub/123.txt
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        
-        let finalAppUrl;
-        if (isAndroid) {
-            // Команда для Happ: добавить подписку
-            finalAppUrl = "happ://add-subscription?url=" + encodeURIComponent(subUrl) + "&name=RocketVPN";
-        } else {
-            // Команда для V2Box: добавить подписку
-            finalAppUrl = "v2box://add-sub?url=" + encodeURIComponent(subUrl) + "&title=RocketVPN";
+        async function init() {
+            if (!enc) return;
+            const vlessLink = atob(enc);
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            
+            // Копируем ключ (Happ увидит его в буфере и предложит импорт)
+            const el = document.createElement('textarea');
+            el.value = vlessLink;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            const appUri = isAndroid ? "happ://" : "v2box://";
+
+            setTimeout(() => {
+                document.getElementById('st').innerText = "Готово!";
+                document.getElementById('msg').innerHTML = "Конфиг скопирован.<br>Нажмите <b>YES/IMPORT</b> в приложении.";
+                document.getElementById('openBtn').style.display = "block";
+                document.getElementById('openBtn').href = appUri;
+                window.location.href = appUri;
+            }, 600);
         }
-
-        // 1. Копируем ссылку в буфер (на всякий случай)
-        const el = document.createElement('textarea');
-        el.value = subUrl;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-
-        // 2. Редирект в приложение
-        setTimeout(() => {
-            window.location.href = finalAppUrl;
-        }, 500);
-    }
-    window.onload = process;
-</script>
+        window.onload = init;
+    </script>
+</body>
+</html>
