@@ -156,7 +156,7 @@
             </div>
         </div>
         
-        <button class="btn btn-rocket" onclick="connectRocket()">🚀 ЗАПУСТИТЬ VPN (V2Box)</button>
+        <button class="btn btn-rocket" onclick="connectRocket()">🚀 ПОДКЛЮЧИТЬ (V2BOX)</button>
         
         <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
         <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
@@ -195,40 +195,29 @@
         function connectRocket() {
             if (parseInt(days) <= 0) return tg.showAlert("Сначала купите подписку!");
             
-            // Ссылка на V2Box в App Store
-            const appStoreUrl = "https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690?l=ru";
-            
-            // Специальный формат ссылки для V2Box, чтобы он сразу импортировал конфиг
+            // Прямая команда для V2Box (вшиваем конфиг сразу)
             const v2boxDeepLink = "v2box://install-config?url=" + encodeURIComponent(vlessLink);
             
-            // Пытаемся открыть приложение
-            window.location.href = v2boxDeepLink;
+            // 1. ПЕРЕХОД В ПРИЛОЖЕНИЕ (ЭТО ТА САМАЯ КНОПКА)
+            window.location.replace(v2boxDeepLink);
 
-            // Если через 2 секунды юзер всё еще тут, значит приложения нет
+            // 2. ЗАПАСНОЙ ВАРИАНТ (сработает только если приложение не открылось через 3 сек)
             setTimeout(() => {
                 if (document.visibilityState === 'visible') {
                     tg.showPopup({
-                        title: "V2Box не открылся",
-                        message: "Если у вас не скачано приложение — скачайте его. Если скачано — попробуйте еще раз или скопируйте код вручную.",
+                        title: "Не удалось открыть V2Box",
+                        message: "Если приложение установлено, попробуйте еще раз. Если нет — скачайте его по ссылке ниже.",
                         buttons: [
                             {id: "download", type: "default", text: "Скачать V2Box"},
-                            {id: "copy", type: "default", text: "Скопировать код"},
-                            {id: "cancel", type: "destructive", text: "Закрыть"}
+                            {id: "ok", type: "destructive", text: "Закрыть"}
                         ]
                     }, (buttonId) => {
-                        if (buttonId === "download") tg.openLink(appStoreUrl);
-                        if (buttonId === "copy") {
-                            const el = document.createElement('textarea');
-                            el.value = vlessLink;
-                            document.body.appendChild(el);
-                            el.select();
-                            document.execCommand('copy');
-                            document.body.removeChild(el);
-                            tg.showAlert("Код скопирован в буфер!");
+                        if (buttonId === "download") {
+                            tg.openLink("https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690?l=ru");
                         }
                     });
                 }
-            }, 2000);
+            }, 3000);
         }
 
         function openTariffModal() { document.getElementById('tariffModal').classList.add('active'); }
@@ -248,6 +237,7 @@
             setTimeout(() => tg.close(), 100);
         }
 
+        // Звезды
         const container = document.getElementById('stars');
         for (let i = 0; i < 30; i++) {
             const star = document.createElement('div');
