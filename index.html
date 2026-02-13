@@ -9,7 +9,7 @@
         :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
         body { margin: 0; padding: 20px; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; min-height: 100vh; }
         .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.8; box-shadow: 0 0 5px white; animation: move linear infinite; }
         @keyframes move { from { transform: translateY(100vh); } to { transform: translateY(-10vh); } }
         .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
         .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 20px; text-align: center; }
