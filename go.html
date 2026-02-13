@@ -3,72 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocket VPN - Авто-настройка</title>
+    <title>Rocket VPN - Подключение</title>
     <style>
-        body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
-        .card { background: #161b22; padding: 30px; border-radius: 20px; border: 1px solid #00dfd8; width: 80%; }
-        .loader { width: 40px; height: 40px; border: 4px solid #FFF; border-bottom-color: #00dfd8; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
-        @keyframes rotation { 0% { transform: rotate(0deg) } 100% { transform: rotate(360deg) } }
-        .btn { display: none; background: #00dfd8; color: #000; padding: 15px; text-decoration: none; border-radius: 10px; font-weight: bold; margin-top: 20px; }
+        body { background: #0b0e14; color: white; font-family: -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: #161b22; padding: 35px 25px; border-radius: 28px; border: 1px solid #00dfd8; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .icon { font-size: 50px; margin-bottom: 20px; }
+        h2 { font-size: 22px; margin: 0 0 15px; color: #00dfd8; }
+        p { font-size: 15px; color: #8b949e; line-height: 1.5; margin-bottom: 25px; }
+        .btn { display: block; background: #00dfd8; color: #0b0e14; padding: 18px; text-decoration: none; border-radius: 15px; font-weight: bold; font-size: 16px; transition: 0.2s; border: none; width: 100%; cursor: pointer; }
+        .btn:active { transform: scale(0.98); opacity: 0.8; }
+        #copy-status { display: none; color: #00dfd8; font-size: 13px; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="card">
-        <div class="loader" id="loader"></div>
-        <h2 id="st">Синхронизация...</h2>
-        <p id="msg">Передаем ключ в приложение</p>
-        <a href="#" id="manualBtn" class="btn">ОТКРЫТЬ ВРУЧНУЮ</a>
+        <div class="icon">🚀</div>
+        <h2>Почти готово!</h2>
+        <p>Нажмите на кнопку ниже, чтобы скопировать ключ и открыть приложение.</p>
+        
+        <button onclick="startConnect()" class="btn" id="mainBtn">ПОДКЛЮЧИТЬ VPN</button>
+        <div id="copy-status">✅ КЛЮЧ СКОПИРОВАН</div>
     </div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const enc = urlParams.get('enc');
 
-        function copyToClipboard(text) {
+        function startConnect() {
+            if (!enc) return alert("Ключ не найден");
+            
+            const vlessLink = atob(enc);
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const appUri = isAndroid ? "happ://" : "v2box://";
+
+            // 1. Прямое копирование по клику (Android это разрешит)
             const el = document.createElement('textarea');
-            el.value = text;
+            el.value = vlessLink;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-        }
 
-        async function launch() {
-            if (!enc) return;
-            const vlessLink = atob(enc);
-            const isAndroid = /Android/i.test(navigator.userAgent);
+            // 2. Визуальный фидбек
+            document.getElementById('mainBtn').innerText = "ОТКРЫВАЕМ...";
+            document.getElementById('copy-status').style.display = "block";
 
-            // 1. Всегда копируем в буфер (это наш "черный ход")
-            copyToClipboard(vlessLink);
-
-            if (isAndroid) {
-                // Хитрый способ для Android: пробуем передать через intent
-                // Если приложение не подхватит ссылку целиком, оно подхватит её из буфера при открытии
-                const intentUrl = "intent://" + vlessLink.replace("vless://", "") + "#Intent;scheme=vless;package=com.happ.vpn;end";
-                
-                // Сначала пробуем прямой импорт
-                window.location.href = "happ://import/" + vlessLink;
-                
-                // Если через 500мс ничего не произошло или ключ битый, просто открываем приложение
-                setTimeout(() => {
-                    window.location.href = "happ://";
-                }, 500);
-            } else {
-                // Для iOS всё остается как было — там и так работает
-                window.location.href = "v2box://install-config?url=" + encodeURIComponent(vlessLink);
-            }
-
-            // Обновляем UI
+            // 3. Переход в приложение
             setTimeout(() => {
-                document.getElementById('loader').style.display = "none";
-                document.getElementById('st').innerText = "Готово!";
-                document.getElementById('msg').innerHTML = "Ключ передан. В приложении нажмите <b>YES</b> или <b>IMPORT</b>";
-                document.getElementById('manualBtn').style.display = "block";
-                document.getElementById('manualBtn').href = isAndroid ? "happ://" : "v2box://";
-            }, 1000);
+                window.location.href = appUri;
+            }, 400);
         }
-
-        window.onload = launch;
     </script>
 </body>
 </html>
