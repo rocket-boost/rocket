@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZOO VPN PREMIUM</title>
+    <title>Rocket VPN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
@@ -113,7 +113,8 @@
             
             setTimeout(() => {
                 tg.sendData(JSON.stringify(actionData));
-            }, 3500); 
+                tg.close(); // Закрываем Mini App после отправки данных
+            }, 3000); 
         }
 
         document.getElementById('testBtn').onclick = function() {
@@ -122,7 +123,7 @@
 
         document.getElementById('rocketBtn').onclick = function() {
             if (parseInt(days) <= 0) {
-                handleLaunch({action: 'get_free_test'});
+                tg.showAlert("Сначала активируйте тест или купите подписку!");
             } else {
                 handleLaunch({action: 'request_vpn_button'});
             }
@@ -135,12 +136,14 @@
         function sendPayment() {
             const val = document.getElementById('sumInput').value;
             if(!val) return;
-            tg.sendData(JSON.stringify({action: 'pay', amount: val}));
+            tg.showConfirm("Для пополнения на " + val + "₽ напишите администратору.", (ok) => {
+                if(ok) tg.close();
+            });
         }
 
         function confirmBuy(m, p) {
-            if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств!");
-            tg.sendData(JSON.stringify({action: "buy_subscription", months: m, price: p}));
+            if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств! Пополните баланс через администратора.");
+            handleLaunch({action: "buy_subscription", months: m, price: p});
         }
 
         const container = document.getElementById('stars');
@@ -163,8 +166,9 @@
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
     </div>
     <div class="modal" id="amountModal">
+        <div style="text-align:center; margin-bottom:15px; font-size:14px;">Введите сумму для пополнения через админа</div>
         <input type="number" id="sumInput" placeholder="Сумма (₽)">
-        <button class="btn btn-pay" onclick="sendPayment()">ПОПОЛНИТЬ</button>
+        <button class="btn btn-pay" onclick="sendPayment()">СВЯЗАТЬСЯ</button>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
     </div>
 </body>
