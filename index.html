@@ -9,55 +9,50 @@
         :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
         body { margin: 0; padding: 20px; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; min-height: 100vh; }
         
-        /* Фон со звездами и ракетами */
+        /* Фон со звездами */
         .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; }
-        .mini-rocket { position: absolute; font-size: 12px; opacity: 0.3; filter: grayscale(1); animation: move linear infinite; }
-        
-        @keyframes move { from { transform: translateY(105vh) rotate(-45deg); } to { transform: translateY(-10vh) rotate(-45deg); } }
+        @keyframes move { from { transform: translateY(100vh); } to { transform: translateY(-10vh); } }
         
         .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
         .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 20px; text-align: center; }
         .balance-val { font-size: 42px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
         .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; text-align: center; }
         .box-title { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 3px; }
         .box-data { font-size: 14px; font-weight: 600; }
         
-        /* Кнопки */
-        .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; backdrop-filter: blur(8px); }
-        .btn-test { background: linear-gradient(45deg, rgba(240, 147, 251, 0.8), rgba(245, 87, 108, 0.8)); border: 1px solid rgba(255,255,255,0.2); }
-        .btn-rocket { background: linear-gradient(45deg, rgba(0, 198, 255, 0.8), rgba(0, 114, 255, 0.8)); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.3); animation: pulse 2s infinite; }
-        .btn-vpn { background: linear-gradient(45deg, rgba(255, 0, 128, 0.8), rgba(121, 40, 202, 0.8)); }
-        .btn-pay { background: linear-gradient(45deg, rgba(0, 223, 216, 0.8), rgba(0, 124, 240, 0.8)); }
+        .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; }
+        .btn-rocket { background: linear-gradient(45deg, #00c6ff, #0072ff); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); animation: pulse 2s infinite; }
+        .btn-test { background: linear-gradient(45deg, #f093fb, #f5576c); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); }
+        .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); }
         
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
         
-        /* АНИМАЦИЯ ВЗЛЕТА (КАК НА ВИДЕО) */
+        /* АНИМАЦИЯ РАКЕТЫ */
         #rocket-overlay { 
             position: fixed; 
             top: 0; left: 0; 
             width: 100%; height: 100%; 
-            background: rgba(15, 12, 41, 0.6); /* Полупрозрачный фон */
+            background: rgba(0,0,0,0.3); 
             display: none; 
             justify-content: center; 
             align-items: center; 
             z-index: 1000; 
-            pointer-events: none; /* Чтобы не мешал кликам во время появления */
+            pointer-events: none;
         }
-        
-        .big-emoji-rocket { 
-            font-size: 120px; 
+        .big-rocket { 
+            font-size: 100px; 
             position: absolute; 
-            bottom: -150px;
-            filter: drop-shadow(0 0 20px rgba(0, 223, 216, 0.8));
+            bottom: -150px; 
+            filter: drop-shadow(0 0 20px rgba(0, 198, 255, 0.8));
         }
-
-        .rocket-launch-animation {
-            animation: rocket-up 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        .launch-anim { 
+            animation: launch 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; 
         }
-
-        @keyframes rocket-up {
+        @keyframes launch {
             0% { transform: translateY(0) scale(0.5); opacity: 0; }
             20% { opacity: 1; }
             100% { transform: translateY(-130vh) scale(1.5); opacity: 1; }
@@ -70,11 +65,9 @@
     </style>
 </head>
 <body>
-    <div id="rocket-overlay">
-        <div class="big-emoji-rocket" id="mainRocket">🚀</div>
-    </div>
-
+    <div id="rocket-overlay"><div class="big-rocket" id="emojiRocket">🚀</div></div>
     <div class="stars-container" id="stars"></div>
+    
     <div class="main-container">
         <div class="card-balance">
             <div style="font-size: 13px;">Ваш баланс</div>
@@ -86,8 +79,8 @@
             <div class="box"><div class="box-title">Доступно</div><div class="box-data" id="daysDisplay">0 дней</div></div>
         </div>
         
-        <button class="btn btn-test" id="testBtn">🎁 ТЕСТОВЫЙ ПЕРИОД (24ч)</button>
         <button class="btn btn-rocket" id="rocketBtn">🚀 ПОДКЛЮЧИТЬ VPN</button>
+        <button class="btn btn-test" id="testBtn">🎁 ТЕСТОВЫЙ ПЕРИОД (24ч)</button>
         
         <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
         <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
@@ -125,25 +118,21 @@
             document.getElementById('testBtn').style.display = "none";
         }
 
-        function startRocket() {
+        // ФУНКЦИЯ ЗАПУСКА РАКЕТЫ
+        function startRocketAnim() {
             const overlay = document.getElementById('rocket-overlay');
-            const rocket = document.getElementById('mainRocket');
-            
+            const rocket = document.getElementById('emojiRocket');
             overlay.style.display = 'flex';
-            setTimeout(() => {
-                rocket.classList.add('rocket-launch-animation');
-            }, 50);
-            
-            setTimeout(() => { 
-                tg.close(); 
-            }, 1300);
+            rocket.classList.add('launch-anim');
+            // Закрываем приложение после завершения анимации
+            setTimeout(() => { tg.close(); }, 1200);
         }
 
         document.getElementById('testBtn').onclick = function() {
             tg.showConfirm("Получить бесплатный доступ на 24 часа?", (ok) => {
                 if (ok) {
                     tg.sendData(JSON.stringify({action: 'get_free_test'}));
-                    startRocket();
+                    startRocketAnim();
                 }
             });
         };
@@ -153,14 +142,14 @@
                 tg.showConfirm("У вас нет активной подписки. Хотите получить бесплатный тестовый доступ на 24 часа?", (ok) => {
                     if (ok) {
                         tg.sendData(JSON.stringify({action: 'get_free_test'}));
-                        startRocket();
+                        startRocketAnim();
                     }
                 });
             } else {
                 tg.showConfirm("Для подключения мы отправим вам ключ и инструкции в чат. Продолжить?", (ok) => {
                     if (ok) {
                         tg.sendData(JSON.stringify({action: 'request_vpn_button'}));
-                        startRocket();
+                        startRocketAnim();
                     }
                 });
             }
@@ -184,15 +173,13 @@
         }
 
         const container = document.getElementById('stars');
-        for (let i = 0; i < 35; i++) {
-            const isRocket = i % 12 === 0;
-            const el = document.createElement('div');
-            el.className = isRocket ? 'mini-rocket' : 'star';
-            if (isRocket) el.innerText = '🚀';
-            el.style.left = Math.random() * 100 + 'vw';
-            el.style.animationDuration = Math.random() * 4 + 3 + 's';
-            el.style.animationDelay = Math.random() * 5 + 's';
-            container.appendChild(el);
+        for (let i = 0; i < 30; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = star.style.height = Math.random() * 2 + 'px';
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.animationDuration = Math.random() * 3 + 2 + 's';
+            container.appendChild(star);
         }
     </script>
 </body>
