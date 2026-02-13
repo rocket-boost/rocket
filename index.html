@@ -30,12 +30,12 @@
         
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
         
-        /* ОВЕРЛЕЙ РАКЕТЫ */
+        /* МЕДЛЕННАЯ РАКЕТА */
         #rocket-overlay { 
             position: fixed; 
             top: 0; left: 0; 
             width: 100%; height: 100%; 
-            background: rgba(15, 12, 41, 0.6); 
+            background: rgba(15, 12, 41, 0.7); 
             display: none; 
             justify-content: center; 
             align-items: center; 
@@ -43,18 +43,20 @@
             pointer-events: none;
         }
         .big-rocket { 
-            font-size: 120px; 
+            font-size: 130px; 
             position: absolute; 
-            bottom: -200px; 
-            filter: drop-shadow(0 0 30px #00dfd8);
+            bottom: -250px; 
+            filter: drop-shadow(0 0 40px #00dfd8);
+            will-change: transform;
         }
         .launch-anim { 
-            animation: launch 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; 
+            /* Время полета увеличено до 3 секунд для плавности */
+            animation: launch 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards; 
         }
         @keyframes launch {
             0% { transform: translateY(0) scale(0.6); opacity: 0; }
             10% { opacity: 1; }
-            100% { transform: translateY(-150vh) scale(2); opacity: 1; }
+            100% { transform: translateY(-160vh) scale(2.2); opacity: 1; }
         }
 
         .modal { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1a1a2e; border-top: 2px solid var(--accent-cyan); border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 25px 20px; z-index: 100; transition: 0.4s; box-sizing: border-box; }
@@ -104,49 +106,45 @@
             document.getElementById('testBtn').style.display = "none";
         }
 
-        // ГЛАВНАЯ ФУНКЦИЯ: СНАЧАЛА КРАСОТА, ПОТОМ ДАННЫЕ
+        // ЗАПУСК БЕЗ ПОДТВЕРЖДЕНИЯ
         function handleLaunch(actionData) {
             const overlay = document.getElementById('rocket-overlay');
             const rocket = document.getElementById('emojiRocket');
             
-            // 1. Показываем ракету
             overlay.style.display = 'flex';
             rocket.classList.add('launch-anim');
             
-            // 2. Даем ракете время взлететь перед тем как отправить данные
+            // Задержка увеличена до 3.5 сек, чтобы ракета полностью улетела
             setTimeout(() => {
                 tg.sendData(JSON.stringify(actionData));
-                // tg.close() убран, так как sendData сам закроет окно в 99% случаев
-            }, 800); 
+            }, 3500); 
         }
 
+        // Убрали tg.showConfirm — теперь срабатывает сразу
         document.getElementById('testBtn').onclick = function() {
-            tg.showConfirm("Получить бесплатный доступ на 24 часа?", (ok) => {
-                if (ok) handleLaunch({action: 'get_free_test'});
-            });
+            handleLaunch({action: 'get_free_test'});
         };
 
         document.getElementById('rocketBtn').onclick = function() {
             if (parseInt(days) <= 0) {
-                tg.showConfirm("У вас нет активной подписки. Тест на 24ч?", (ok) => {
-                    if (ok) handleLaunch({action: 'get_free_test'});
-                });
+                // Если нет дней, отправляем на тест сразу
+                handleLaunch({action: 'get_free_test'});
             } else {
-                tg.showConfirm("Отправить ключ в чат?", (ok) => {
-                    if (ok) handleLaunch({action: 'request_vpn_button'});
-                });
+                // Если есть подписка, запрашиваем кнопку сразу
+                handleLaunch({action: 'request_vpn_button'});
             }
         };
 
-        // Остальные функции модалок (оставил без изменений как просил)
         function openTariffModal() { document.getElementById('tariffModal').classList.add('active'); }
         function openAmountModal() { document.getElementById('amountModal').classList.add('active'); }
         function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
+        
         function sendPayment() {
             const val = document.getElementById('sumInput').value;
             if(!val) return;
             tg.sendData(JSON.stringify({action: 'pay', amount: val}));
         }
+
         function confirmBuy(m, p) {
             if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств!");
             tg.sendData(JSON.stringify({action: "buy_subscription", months: m, price: p}));
