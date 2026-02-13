@@ -24,7 +24,7 @@
         .box-title { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 3px; }
         .box-data { font-size: 14px; font-weight: 600; }
         
-        /* Кнопки с возвращенными цветами и эффектом стекла */
+        /* Кнопки */
         .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; backdrop-filter: blur(8px); }
         .btn-test { background: linear-gradient(45deg, rgba(240, 147, 251, 0.8), rgba(245, 87, 108, 0.8)); border: 1px solid rgba(255,255,255,0.2); }
         .btn-rocket { background: linear-gradient(45deg, rgba(0, 198, 255, 0.8), rgba(0, 114, 255, 0.8)); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.3); animation: pulse 2s infinite; }
@@ -33,26 +33,25 @@
         
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         
-        /* ФИНАЛЬНАЯ АНИМАЦИЯ ВЗЛЕТА */
-        #rocket-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 12, 41, 0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        /* АНИМАЦИЯ ВЗЛЕТА (ИСПРАВЛЕННАЯ) */
+        #rocket-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 12, 41, 0.95); display: none; justify-content: center; align-items: center; z-index: 1000; overflow: hidden; }
         
-        .rocket-anim-container {
-            width: 150px;
-            height: 150px;
-            position: relative;
-            display: none;
-            filter: drop-shadow(0 0 20px var(--accent-cyan));
-        }
-        
-        .rocket-active {
-            display: block;
-            animation: launch-rocket 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        .big-rocket { 
+            width: 180px; 
+            height: 180px; 
+            position: absolute; 
+            bottom: -200px;
+            filter: drop-shadow(0 0 30px #00dfd8);
         }
 
-        @keyframes launch-rocket {
-            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
-            30% { opacity: 1; }
-            100% { transform: translateY(-120vh) scale(1.8); opacity: 0; }
+        .rocket-launch-animation {
+            animation: rocket-up 1.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+        }
+
+        @keyframes rocket-up {
+            0% { transform: translateY(0) scale(0.6); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(-130vh) scale(1.5); opacity: 1; }
         }
 
         .modal { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1a1a2e; border-top: 2px solid var(--accent-cyan); border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 25px 20px; z-index: 100; transition: 0.4s; box-sizing: border-box; }
@@ -63,20 +62,7 @@
 </head>
 <body>
     <div id="rocket-overlay">
-        <div class="rocket-anim-container" id="mainRocket">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L9 9H15L12 2Z" fill="url(#grad1)"/>
-                <path d="M9 9C9 9 7 11 7 15C7 19 9 21 12 21C15 21 17 19 17 15C17 11 15 9 15 9H9Z" fill="url(#grad1)"/>
-                <path d="M7 15H4L6 18H7V15Z" fill="#ff0080"/>
-                <path d="M17 15H20L18 18H17V15Z" fill="#ff0080"/>
-                <defs>
-                    <linearGradient id="grad1" x1="12" y1="2" x2="12" y2="21" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#00dfd8"/>
-                        <stop offset="1" stop-color="#007cf0"/>
-                    </linearGradient>
-                </defs>
-            </svg>
-        </div>
+        <img src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png" class="big-rocket" id="mainRocket" alt="Rocket">
     </div>
 
     <div class="stars-container" id="stars"></div>
@@ -130,15 +116,21 @@
             document.getElementById('testBtn').style.display = "none";
         }
 
+        // Функция взлета
         function startRocket() {
             const overlay = document.getElementById('rocket-overlay');
             const rocket = document.getElementById('mainRocket');
-            overlay.style.display = 'flex';
-            rocket.classList.add('rocket-active');
             
+            overlay.style.display = 'flex';
+            // Небольшая задержка перед анимацией для плавности
+            setTimeout(() => {
+                rocket.classList.add('rocket-launch-animation');
+            }, 50);
+            
+            // Закрытие приложения после вылета ракеты
             setTimeout(() => { 
                 tg.close(); 
-            }, 1200);
+            }, 1400);
         }
 
         document.getElementById('testBtn').onclick = function() {
@@ -185,15 +177,13 @@
             setTimeout(() => tg.close(), 100);
         }
 
-        // Генерация звезд и мини-ракет
+        // Звезды
         const container = document.getElementById('stars');
         for (let i = 0; i < 35; i++) {
             const isRocket = i % 12 === 0;
             const el = document.createElement('div');
             el.className = isRocket ? 'mini-rocket' : 'star';
             if (isRocket) el.innerText = '🚀';
-            
-            el.style.width = el.style.height = isRocket ? 'auto' : Math.random() * 2 + 'px';
             el.style.left = Math.random() * 100 + 'vw';
             el.style.animationDuration = Math.random() * 4 + 3 + 's';
             el.style.animationDelay = Math.random() * 5 + 's';
