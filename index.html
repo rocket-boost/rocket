@@ -33,23 +33,32 @@
         
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         
-        /* АНИМАЦИЯ ВЗЛЕТА (ИСПРАВЛЕННАЯ) */
-        #rocket-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 12, 41, 0.95); display: none; justify-content: center; align-items: center; z-index: 1000; overflow: hidden; }
+        /* АНИМАЦИЯ ВЗЛЕТА */
+        #rocket-overlay { 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(15, 12, 41, 0.9); 
+            display: none; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000; 
+        }
         
-        .big-rocket { 
-            width: 180px; 
-            height: 180px; 
+        .big-rocket-svg { 
+            width: 150px; 
+            height: 150px; 
             position: absolute; 
             bottom: -200px;
-            filter: drop-shadow(0 0 30px #00dfd8);
+            filter: drop-shadow(0 0 20px var(--accent-cyan));
         }
 
         .rocket-launch-animation {
-            animation: rocket-up 1.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+            animation: rocket-up 1.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
         }
 
         @keyframes rocket-up {
-            0% { transform: translateY(0) scale(0.6); opacity: 0; }
+            0% { transform: translateY(0) scale(0.7); opacity: 0; }
             20% { opacity: 1; }
             100% { transform: translateY(-130vh) scale(1.5); opacity: 1; }
         }
@@ -62,7 +71,16 @@
 </head>
 <body>
     <div id="rocket-overlay">
-        <img src="https://cdn-icons-png.flaticon.com/512/1356/1356479.png" class="big-rocket" id="mainRocket" alt="Rocket">
+        <svg class="big-rocket-svg" id="mainRocket" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2.25C12 2.25 12 2.25 12 2.25C6.75 6.75 6 12 6 12C6 12 4.5 13.5 4.5 15.75C4.5 18 6 19.5 7.5 19.5C9 19.5 10.5 18.75 10.5 18.75V21.75L12 19.5L13.5 21.75V18.75C13.5 18.75 15 19.5 16.5 19.5C18 19.5 19.5 18 19.5 15.75C19.5 13.5 18 12 18 12C18 12 17.25 6.75 12 2.25Z" fill="url(#rocketGrad)" />
+            <path d="M9 12H15" stroke="white" stroke-width="0.5" stroke-linecap="round"/>
+            <defs>
+                <linearGradient id="rocketGrad" x1="12" y1="2.25" x2="12" y2="21.75" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#00dfd8"/>
+                    <stop offset="1" stop-color="#ff0080"/>
+                </linearGradient>
+            </defs>
+        </svg>
     </div>
 
     <div class="stars-container" id="stars"></div>
@@ -116,21 +134,18 @@
             document.getElementById('testBtn').style.display = "none";
         }
 
-        // Функция взлета
         function startRocket() {
             const overlay = document.getElementById('rocket-overlay');
             const rocket = document.getElementById('mainRocket');
             
             overlay.style.display = 'flex';
-            // Небольшая задержка перед анимацией для плавности
             setTimeout(() => {
                 rocket.classList.add('rocket-launch-animation');
-            }, 50);
+            }, 10);
             
-            // Закрытие приложения после вылета ракеты
             setTimeout(() => { 
                 tg.close(); 
-            }, 1400);
+            }, 1300);
         }
 
         document.getElementById('testBtn').onclick = function() {
@@ -177,7 +192,6 @@
             setTimeout(() => tg.close(), 100);
         }
 
-        // Звезды
         const container = document.getElementById('stars');
         for (let i = 0; i < 35; i++) {
             const isRocket = i % 12 === 0;
