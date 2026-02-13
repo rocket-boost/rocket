@@ -2,51 +2,58 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Rocket VPN Redirect</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rocket VPN - Подключение</title>
+    <style>
+        body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+        .card { background: #161b22; padding: 30px; border-radius: 20px; border: 1px solid #00dfd8; width: 85%; max-width: 350px; }
+        .btn { background: #00dfd8; color: #000; padding: 20px; text-decoration: none; border-radius: 15px; font-weight: bold; width: 100%; border: none; cursor: pointer; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2 style="color:#00dfd8">Прямое подключение</h2>
+        <p>Нажми кнопку для импорта ключа в приложение.</p>
+        <button onclick="superImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
+    </div>
+
     <script>
-        function getQueryParam(name) {
+        function superImport() {
             const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
-        }
-
-        window.onload = function() {
-            const encodedConfig = getQueryParam('enc');
-            const isSub = getQueryParam('sub');
-
-            if (!encodedConfig) {
-                document.body.innerHTML = "Ошибка: Конфигурация не найдена";
-                return;
-            }
-
-            // Декодируем ссылку обратно
-            const decodedConfig = atob(encodedConfig);
+            const enc = urlParams.get('enc'); 
+            if (!enc) return;
             
-            // Определяем устройство
+            // 1. Декодируем VLESS из Base64 (получаем vless://...)
+            const rawVless = atob(enc);
+
+            // 2. Копируем в буфер (резервный метод для всех)
+            const el = document.createElement('textarea');
+            el.value = rawVless;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            // 3. Определяем ОС
             const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
             if (isIOS) {
-                // Для iOS (V2Box) используем прямой протокол приложения
-                // Мы передаем саму VLESS ссылку (decodedConfig), но её нужно снова закодировать для URL
-                const iosUrl = "v2box://install-config?url=" + encodeURIComponent(decodedConfig);
+                // ДЛЯ IPHONE:
+                // Используем протокол v2box. 
+                // Важно: передаем чистую ссылку vless:// через encodeURIComponent
+                const iosUrl = "v2box://install-config?url=" + encodeURIComponent(rawVless);
                 window.location.href = iosUrl;
             } else {
-                // Для Android (Happ VPN) оставляем как было
-                window.location.href = decodedConfig;
+                // ДЛЯ ANDROID:
+                // Просто переходим по прямой vless:// ссылке
+                window.location.href = rawVless;
             }
 
-            // Закрываем окно через пару секунд (для Mini App)
+            // 4. Дополнительная попытка просто открыть приложение, если импорт не сработал мгновенно
             setTimeout(() => {
-                if (window.Telegram && window.Telegram.WebApp) {
-                    window.Telegram.WebApp.close();
-                }
-            }, 3000);
-        };
+                window.location.href = "v2box://";
+            }, 1500);
+        }
     </script>
-</head>
-<body style="background: #0f0c29; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif;">
-    <div style="text-align: center;">
-        <h2 id="status">Импорт конфигурации...</h2>
-        <p>Если приложение не открылось, нажмите кнопку в боте еще раз.</p>
-    </div>
 </body>
 </html>
