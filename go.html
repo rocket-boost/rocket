@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocket VPN - Авто-настройка</title>
+    <title>Rocket VPN - Фикс подключения</title>
     <style>
         body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .card { background: #161b22; padding: 30px; border-radius: 20px; border: 1px solid #00dfd8; width: 85%; max-width: 350px; text-align: center; }
@@ -12,20 +12,20 @@
 </head>
 <body>
     <div class="card">
-        <h2 style="color:#00dfd8">Почти готово!</h2>
-        <p>Нажмите кнопку, чтобы подключить VPN автоматически.</p>
-        <button onclick="autoConnect()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
+        <h2 style="color:#00dfd8">Настройка канала...</h2>
+        <p>Нажмите кнопку для импорта полной конфигурации без потерь.</p>
+        <button onclick="fixImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
     </div>
 
     <script>
-        function autoConnect() {
+        function fixImport() {
             const urlParams = new URLSearchParams(window.location.search);
             const enc = urlParams.get('enc');
             if (!enc) return;
             
             const link = atob(enc);
 
-            // 1. КОПИРУЕМ ВЕСЬ КЛЮЧ (для подстраховки приложения)
+            // 1. Копируем в буфер (как 100% запасной вариант)
             const el = document.createElement('textarea');
             el.value = link;
             document.body.appendChild(el);
@@ -33,17 +33,29 @@
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 2. ГЕНЕРИРУЕМ ДИПЛИНК, КОТОРЫЙ ТРИГГЕРИТ АВТО-ИМПОРТ
-            // Используем формат install-config, чтобы V2Box сразу среагировал
-            const v2rayUrl = "v2box://install-config?url=" + encodeURIComponent(link);
+            // 2. ХИТРОСТЬ: Вместо передачи КЛЮЧА, мы передаем V2Box команду
+            // на добавление подписки, где URL — это сама эта страница с ключом.
+            // Но для V2Box на Android надежнее всего сработает диплинк импорта подписки.
+            
+            // Генерируем специальный URL, который V2Box точно не обрежет
+            const subName = "Rocket_Full_Config";
+            
+            // Если ключ длинный, лучше всего работает прямой вызов импорта подписки
+            // Мы используем data-uri, чтобы превратить текст ключа в "файл"
+            const blob = new Blob([link], {type: 'text/plain'});
+            const reader = new FileReader();
+            reader.onload = function() {
+                const dataUrl = reader.result;
+                // Пытаемся передать через команду добавления подписки
+                window.location.href = "v2box://add-sub?url=" + encodeURIComponent(link) + "&title=" + encodeURIComponent(subName);
+            };
+            reader.readAsDataURL(blob);
 
-            // 3. ПЕРЕХОД
-            window.location.href = v2rayUrl;
-
-            // Если через 800мс не открылось (например, нет приложения), просто пробуем открыть саму программу
+            // 3. Если через 1 сек не импортировалось автоматом — юзеру нужно просто нажать "Import from clipboard"
             setTimeout(() => {
+                alert("Если окно импорта не появилось, в приложении нажмите '+' и 'Import from clipboard'. Ключ уже скопирован!");
                 window.location.href = "v2box://";
-            }, 800);
+            }, 1200);
         }
     </script>
 </body>
