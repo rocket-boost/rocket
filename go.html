@@ -3,59 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocket VPN - Фикс подключения</title>
+    <title>Rocket VPN - Ремонт</title>
     <style>
-        body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: #161b22; padding: 30px; border-radius: 20px; border: 1px solid #00dfd8; width: 85%; max-width: 350px; text-align: center; }
+        body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+        .card { background: #161b22; padding: 30px; border-radius: 20px; border: 1px solid #00dfd8; width: 85%; max-width: 350px; }
         .btn { background: #00dfd8; color: #000; padding: 20px; text-decoration: none; border-radius: 15px; font-weight: bold; width: 100%; border: none; cursor: pointer; font-size: 18px; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h2 style="color:#00dfd8">Настройка канала...</h2>
-        <p>Нажмите кнопку для импорта полной конфигурации без потерь.</p>
-        <button onclick="fixImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
+        <h2 style="color:#00dfd8">Прямое подключение</h2>
+        <p>Нажми кнопку, и ключ будет передан в приложение без искажений.</p>
+        <button onclick="superImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
     </div>
 
     <script>
-        function fixImport() {
+        function superImport() {
             const urlParams = new URLSearchParams(window.location.search);
-            const enc = urlParams.get('enc');
+            const enc = urlParams.get('enc'); // Это наш vless в b64
             if (!enc) return;
             
-            const link = atob(enc);
+            const rawVless = atob(enc);
 
-            // 1. Копируем в буфер (как 100% запасной вариант)
+            // 1. Копируем оригинал в буфер (бетонная страховка)
             const el = document.createElement('textarea');
-            el.value = link;
+            el.value = rawVless;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 2. ХИТРОСТЬ: Вместо передачи КЛЮЧА, мы передаем V2Box команду
-            // на добавление подписки, где URL — это сама эта страница с ключом.
-            // Но для V2Box на Android надежнее всего сработает диплинк импорта подписки.
-            
-            // Генерируем специальный URL, который V2Box точно не обрежет
-            const subName = "Rocket_Full_Config";
-            
-            // Если ключ длинный, лучше всего работает прямой вызов импорта подписки
-            // Мы используем data-uri, чтобы превратить текст ключа в "файл"
-            const blob = new Blob([link], {type: 'text/plain'});
-            const reader = new FileReader();
-            reader.onload = function() {
-                const dataUrl = reader.result;
-                // Пытаемся передать через команду добавления подписки
-                window.location.href = "v2box://add-sub?url=" + encodeURIComponent(link) + "&title=" + encodeURIComponent(subName);
-            };
-            reader.readAsDataURL(blob);
+            // 2. Метод "Чистого Конфига"
+            // Мы кодируем vless ссылку еще раз, чтобы в URL не было символов ? & и т.д.
+            // V2Box понимает такой формат как "готовый импорт"
+            const configB64 = btoa(rawVless);
+            const finalUrl = "v2box://install-config?url=" + configB64;
 
-            // 3. Если через 1 сек не импортировалось автоматом — юзеру нужно просто нажать "Import from clipboard"
+            window.location.href = finalUrl;
+
             setTimeout(() => {
-                alert("Если окно импорта не появилось, в приложении нажмите '+' и 'Import from clipboard'. Ключ уже скопирован!");
                 window.location.href = "v2box://";
-            }, 1200);
+            }, 1000);
         }
     </script>
 </body>
