@@ -1,55 +1,141 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocket VPN - Ремонт</title>
-    <style>
-        body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
-        .card { background: #161b22; padding: 30px; border-radius: 20px; border: 1px solid #00dfd8; width: 85%; max-width: 350px; }
-        .btn { background: #00dfd8; color: #000; padding: 20px; text-decoration: none; border-radius: 15px; font-weight: bold; width: 100%; border: none; cursor: pointer; font-size: 18px; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rocket VPN - Подключение</title>
+    <style>
+        body { 
+            background: #0b0e14; 
+            color: white; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            overflow: hidden;
+        }
+        .card { 
+            background: #161b22; 
+            padding: 40px 30px; 
+            border-radius: 24px; 
+            border: 1px solid rgba(0, 223, 216, 0.3); 
+            width: 85%; 
+            max-width: 350px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .logo {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+        h2 { color: #00dfd8; margin: 0 0 10px 0; font-size: 22px; }
+        p { color: #8b949e; font-size: 15px; line-height: 1.5; margin-bottom: 30px; }
+        
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 223, 216, 0.1);
+            border-top: 3px solid #00dfd8;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn { 
+            background: #00dfd8; 
+            color: #0b0e14; 
+            padding: 18px; 
+            text-decoration: none; 
+            border-radius: 16px; 
+            font-weight: bold; 
+            width: 100%; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 17px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 223, 216, 0.3);
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .status-msg {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #58a6ff;
+            min-height: 20px;
+        }
+    </style>
 </head>
 <body>
-    <div class="card">
-        <h2 style="color:#00dfd8">Прямое подключение</h2>
-        <p>Нажми кнопку, и ключ будет передан в приложение без искажений.</p>
-        <button onclick="superImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
-    </div>
+    <div class="card">
+        <div class="logo">🚀</div>
+        <h2>Rocket VPN</h2>
+        <p id="desc">Нажми кнопку ниже, чтобы автоматически добавить ключ в приложение.</p>
+        
+        <div id="loader" class="loader" style="display:none;"></div>
+        
+        <button id="mainBtn" onclick="superImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
+        
+        <div id="status" class="status-msg"></div>
+    </div>
 
-    <script>
-        function superImport() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const enc = urlParams.get('enc'); // Это наш vless в b64
-            const os = urlParams.get('os'); // Получаем тип OS из ссылки
-            if (!enc) return;
-            
-            const rawVless = atob(enc);
+    <script>
+        function superImport() {
+            const btn = document.getElementById('mainBtn');
+            const loader = document.getElementById('loader');
+            const status = document.getElementById('status');
+            const desc = document.getElementById('desc');
 
-            // 1. Копируем оригинал в буфер (бетонная страховка)
-            const el = document.createElement('textarea');
-            el.value = rawVless;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
+            const urlParams = new URLSearchParams(window.location.search);
+            const enc = urlParams.get('enc');
+            const os = urlParams.get('os');
+            
+            if (!enc) return;
+            
+            // Визуальный отклик
+            btn.style.display = 'none';
+            desc.style.display = 'none';
+            loader.style.display = 'block';
+            status.innerText = "Копируем ключ и запускаем...";
 
-            // 2. Метод подключения
-            if (os === 'ios') {
-                // Для iOS отправляем чистую vless:// ссылку. 
-                // Это самый надежный метод для V2Box на iPhone.
-                window.location.href = rawVless;
-            } else {
-                // Для Android оставляем твой оригинальный метод
-                const configB64 = btoa(rawVless);
-                const finalUrl = "v2box://install-config?url=" + configB64;
-                window.location.href = finalUrl;
-            }
+            const rawVless = atob(enc);
 
-            setTimeout(() => {
-                window.location.href = "v2box://";
-            }, 1500);
-        }
-    </script>
+            // 1. Копируем в буфер
+            const el = document.createElement('textarea');
+            el.value = rawVless;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            // 2. Логика перехода
+            setTimeout(() => {
+                if (os === 'ios') {
+                    window.location.href = rawVless;
+                } else {
+                    const configB64 = btoa(rawVless);
+                    window.location.href = "v2box://install-config?url=" + configB64;
+                }
+                
+                status.innerText = "Открываем V2Box...";
+            }, 600);
+
+            // 3. Запасной запуск через 2 секунды
+            setTimeout(() => {
+                window.location.href = "v2box://";
+                status.innerText = "Готово! Импортируйте ключ в приложении.";
+            }, 2000);
+        }
+    </script>
 </body>
 </html>
