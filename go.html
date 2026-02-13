@@ -2,49 +2,51 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocket VPN - Ремонт</title>
-    <style>
-        body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
-        .card { background: #161b22; padding: 30px; border-radius: 20px; border: 1px solid #00dfd8; width: 85%; max-width: 350px; }
-        .btn { background: #00dfd8; color: #000; padding: 20px; text-decoration: none; border-radius: 15px; font-weight: bold; width: 100%; border: none; cursor: pointer; font-size: 18px; }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h2 style="color:#00dfd8">Прямое подключение</h2>
-        <p>Нажми кнопку, и ключ будет передан в приложение без искажений.</p>
-        <button onclick="superImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
-    </div>
-
+    <title>Rocket VPN Redirect</title>
     <script>
-        function superImport() {
+        function getQueryParam(name) {
             const urlParams = new URLSearchParams(window.location.search);
-            const enc = urlParams.get('enc'); // Это наш vless в b64
-            if (!enc) return;
-            
-            const rawVless = atob(enc);
-
-            // 1. Копируем оригинал в буфер (бетонная страховка)
-            const el = document.createElement('textarea');
-            el.value = rawVless;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-
-            // 2. Метод "Чистого Конфига"
-            // Мы кодируем vless ссылку еще раз, чтобы в URL не было символов ? & и т.д.
-            // V2Box понимает такой формат как "готовый импорт"
-            const configB64 = btoa(rawVless);
-            const finalUrl = "v2box://install-config?url=" + configB64;
-
-            window.location.href = finalUrl;
-
-            setTimeout(() => {
-                window.location.href = "v2box://";
-            }, 1000);
+            return urlParams.get(name);
         }
+
+        window.onload = function() {
+            const encodedConfig = getQueryParam('enc');
+            const isSub = getQueryParam('sub');
+
+            if (!encodedConfig) {
+                document.body.innerHTML = "Ошибка: Конфигурация не найдена";
+                return;
+            }
+
+            // Декодируем ссылку обратно
+            const decodedConfig = atob(encodedConfig);
+            
+            // Определяем устройство
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+            if (isIOS) {
+                // Для iOS (V2Box) используем прямой протокол приложения
+                // Мы передаем саму VLESS ссылку (decodedConfig), но её нужно снова закодировать для URL
+                const iosUrl = "v2box://install-config?url=" + encodeURIComponent(decodedConfig);
+                window.location.href = iosUrl;
+            } else {
+                // Для Android (Happ VPN) оставляем как было
+                window.location.href = decodedConfig;
+            }
+
+            // Закрываем окно через пару секунд (для Mini App)
+            setTimeout(() => {
+                if (window.Telegram && window.Telegram.WebApp) {
+                    window.Telegram.WebApp.close();
+                }
+            }, 3000);
+        };
     </script>
+</head>
+<body style="background: #0f0c29; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif;">
+    <div style="text-align: center;">
+        <h2 id="status">Импорт конфигурации...</h2>
+        <p>Если приложение не открылось, нажмите кнопку в боте еще раз.</p>
+    </div>
 </body>
 </html>
