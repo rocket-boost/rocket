@@ -157,8 +157,8 @@
             }
         };
 
-        function openTariffModal() { document.getElementById('tariffModal').classList.add('active'); }
-        function openAmountModal() { document.getElementById('amountModal').classList.add('active'); }
+        function openTariffModal() { closeAll(); document.getElementById('tariffModal').classList.add('active'); }
+        function openAmountModal() { closeAll(); document.getElementById('amountModal').classList.add('active'); }
         function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
         
         function sendPayment() {
@@ -167,8 +167,9 @@
                 tg.showAlert("Введите корректную сумму пополнения");
                 return;
             }
+            // Исправлено: action "deposit" для соответствия bot.py
             tg.sendData(JSON.stringify({
-                action: "payment",
+                action: "deposit",
                 amount: parseInt(val)
             }));
             tg.close();
