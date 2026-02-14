@@ -145,14 +145,28 @@
         
         function sendPayment() {
             const val = document.getElementById('sumInput').value;
-            if(!val) return;
-            tg.showConfirm("Для пополнения на " + val + "₽ напишите администратору.", (ok) => {
-                if(ok) tg.close();
-            });
+            if(!val || isNaN(val) || parseInt(val) <= 0) {
+                tg.showAlert("Введите корректную сумму пополнения");
+                return;
+            }
+            // Отправляем данные боту для генерации ссылки CactusPay
+            tg.sendData(JSON.stringify({
+                action: "payment",
+                amount: parseInt(val)
+            }));
+            tg.close();
         }
 
         function confirmBuy(m, p) {
-            if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств! Пополните баланс через администратора.");
+            if (parseFloat(balance) < p) {
+                tg.showConfirm("Недостаточно средств! Перейти к пополнению баланса?", (ok) => {
+                    if (ok) {
+                        closeAll();
+                        openAmountModal();
+                    }
+                });
+                return;
+            }
             
             tg.showConfirm(`Вы уверены, что хотите выбрать тариф на ${m} мес. за ${p} ₽?`, (ok) => {
                 if (ok) {
@@ -181,9 +195,9 @@
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
     </div>
     <div class="modal" id="amountModal">
-        <div style="text-align:center; margin-bottom:15px; font-size:14px;">Введите сумму для пополнения через админа</div>
-        <input type="number" id="sumInput" placeholder="Сумма (₽)">
-        <button class="btn btn-pay" onclick="sendPayment()">СВЯЗАТЬСЯ</button>
+        <div style="text-align:center; margin-bottom:15px; font-size:14px;">Введите сумму пополнения</div>
+        <input type="number" id="sumInput" placeholder="Сумма (₽)" min="10">
+        <button class="btn btn-pay" onclick="sendPayment()">ПЕРЕЙТИ К ОПЛАТЕ</button>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
     </div>
 </body>
