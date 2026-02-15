@@ -31,11 +31,47 @@
         @keyframes ring-pulse { 0% { box-shadow: 0 0 0 0px rgba(255,255,255,0.4); } 100% { box-shadow: 0 0 0 6px rgba(255,255,255,0); } }
 
         .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; text-decoration: none; display: block; text-align: center; box-sizing: border-box; position: relative; }
-        .btn-rocket { background: linear-gradient(45deg, #00c6ff, #0072ff); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); animation: pulse 2s infinite; overflow: hidden; }
         
-        /* Эффект огня */
-        .btn-rocket::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, #ff4d4d, #f9d423, #ff4d4d, transparent); background-size: 200% 100%; animation: fire-flow 1s linear infinite; opacity: 0.8; }
-        @keyframes fire-flow { 0% { background-position: 0% 0; } 100% { background-position: 200% 0; } }
+        /* Кнопка с эффектом огня */
+        .btn-rocket { 
+            background: linear-gradient(45deg, #00c6ff, #0072ff); 
+            box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); 
+            animation: pulse 2s infinite; 
+            overflow: visible; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .rocket-icon { 
+            font-size: 24px; 
+            display: inline-block; 
+            animation: rocket-vibrate 0.1s infinite;
+            filter: drop-shadow(0 0 8px #ff4d4d);
+        }
+        .fire-particles {
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 15px;
+            background: radial-gradient(ellipse at top, #f9d423, #ff4d4d, transparent);
+            filter: blur(2px);
+            animation: fire-flicker 0.2s infinite;
+            opacity: 0.8;
+            z-index: -1;
+        }
+        @keyframes rocket-vibrate {
+            0% { transform: translate(0,0) rotate(-1deg); }
+            50% { transform: translate(1px, 1px) rotate(1deg); }
+            100% { transform: translate(0,0) rotate(-1deg); }
+        }
+        @keyframes fire-flicker {
+            0% { height: 12px; opacity: 0.7; }
+            50% { height: 18px; opacity: 1; }
+            100% { height: 12px; opacity: 0.7; }
+        }
 
         .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); }
         .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); }
@@ -62,6 +98,18 @@
             filter: drop-shadow(0 0 40px #00dfd8);
             will-change: transform;
         }
+        /* Огонь под большой ракетой */
+        .big-rocket::after {
+            content: '🔥';
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%) rotate(180deg);
+            font-size: 60px;
+            filter: blur(2px);
+            animation: fire-flicker 0.1s infinite;
+        }
+
         .launch-anim { 
             animation: launch 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards; 
         }
@@ -76,7 +124,6 @@
         input { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--accent-cyan); background: rgba(255,255,255,0.05); color: white; font-size: 20px; text-align: center; margin-bottom: 20px; box-sizing: border-box; }
         .pay-option { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
         
-        /* Метка выгоды */
         .badge-sale { background: var(--accent-pink); color: white; font-size: 10px; padding: 4px 8px; border-radius: 10px; font-weight: 800; }
     </style>
 </head>
@@ -102,7 +149,11 @@
             <div class="box"><div class="box-title">Доступно</div><div class="box-data" id="daysDisplay">0 дней</div></div>
         </div>
         
-        <button class="btn btn-rocket" id="rocketBtn">🚀 ПОДКЛЮЧИТЬ VPN</button>
+        <button class="btn btn-rocket" id="rocketBtn">
+            <span class="rocket-icon">🚀</span>
+            ПОДКЛЮЧИТЬ VPN
+            <div class="fire-particles"></div>
+        </button>
         
         <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
         <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
@@ -205,7 +256,6 @@
             });
         }
 
-        // Параллакс звезд
         const container = document.getElementById('stars');
         for (let i = 0; i < 45; i++) {
             const star = document.createElement('div');
@@ -213,7 +263,6 @@
             const size = Math.random() * 2 + 1;
             star.style.width = star.style.height = size + 'px';
             star.style.left = Math.random() * 100 + 'vw';
-            // Чем больше звезда, тем быстрее она летит (эффект глубины)
             const speed = size > 2 ? Math.random() * 2 + 2 : Math.random() * 5 + 4;
             star.style.animationDuration = speed + 's';
             star.style.opacity = Math.random();
