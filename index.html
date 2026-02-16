@@ -139,6 +139,22 @@
         .badge-sale { background: var(--accent-pink); color: white; font-size: 10px; padding: 4px 8px; border-radius: 10px; font-weight: 800; }
         .work-notice { text-align: center; line-height: 1.5; margin-bottom: 20px; }
         .work-title { color: var(--accent-pink); font-weight: 800; font-size: 18px; margin-bottom: 10px; }
+
+        /* Поле ввода для оплаты */
+        .pay-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 223, 216, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            outline: none;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        .pay-input:focus { border-color: var(--accent-cyan); box-shadow: 0 0 10px rgba(0, 223, 216, 0.2); }
     </style>
 </head>
 <body onclick="handleGlobalClick(event)">
@@ -263,6 +279,18 @@
             });
         }
 
+        function depositLava() {
+            const amountInput = document.getElementById('lavaAmount');
+            const amount = parseFloat(amountInput.value);
+            if (!amount || amount < 10) {
+                tg.showAlert("Минимальная сумма пополнения — 10 ₽");
+                return;
+            }
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            tg.sendData(JSON.stringify({action: "deposit_lava", amount: amount}));
+            tg.close();
+        }
+
         const container = document.getElementById('stars');
         function createStar(isComet = false) {
             const star = document.createElement('div');
@@ -328,15 +356,15 @@
 
     <div class="modal" id="workModal" onclick="event.stopPropagation()">
         <div class="work-notice">
-            <div class="work-title">Технические работы</div>
-            <div style="font-size: 14px; opacity: 0.9;">
-                Автоматизированное пополнение недоступно. Проводятся технические работы.<br><br>
-                Для пополнения напишите менеджеру. Время ответа и пополнения займет не более двух минут.
+            <div class="work-title">Пополнение баланса</div>
+            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 20px;">
+                Введите сумму пополнения (от 10 ₽).<br>После нажатия вы будете перенаправлены на сайт LAVA.
             </div>
+            <input type="number" id="lavaAmount" class="pay-input" placeholder="Сумма в рублях" min="10" inputmode="decimal">
         </div>
-        <a href="https://t.me/SuperRocketSupport" class="btn btn-rocket" style="animation: none; background: var(--accent-cyan); color: #000; opacity: 1;">
-            👨‍💻 НАПИСАТЬ МЕНЕДЖЕРУ
-        </a>
+        <button onclick="depositLava()" class="btn btn-rocket" style="animation: none; background: var(--accent-cyan); color: #000; opacity: 1;">
+            💳 ОПЛАТИТЬ ЧЕРЕЗ LAVA
+        </button>
         <div style="text-align:center; margin-top:20px; opacity:0.5" onclick="closeAll()">Закрыть</div>
     </div>
 </body>
