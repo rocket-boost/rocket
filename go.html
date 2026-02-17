@@ -104,16 +104,14 @@
                 return;
             }
             
-            // Визуальный отклик
             btn.style.display = 'none';
             desc.style.display = 'none';
             loader.style.display = 'block';
             status.innerText = "Подготовка ключа...";
 
-            // Декодируем vless ссылку из base64
             const rawVless = atob(enc);
 
-            // 1. Копируем в буфер (для тех случаев, если приложение потребует ручную вставку)
+            // 1. Копируем в буфер (фоновый метод)
             const el = document.createElement('textarea');
             el.value = rawVless;
             document.body.appendChild(el);
@@ -121,20 +119,19 @@
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 2. Логика перехода в Happ (используем прямой импорт)
+            // 2. Логика перехода
             setTimeout(() => {
-                // encodeURIComponent решает проблему "DeepLink" на iOS, кодируя спецсимволы ключа
-                const safeVless = encodeURIComponent(rawVless);
-                window.location.href = "happ://import/" + safeVless;
+                // Пытаемся открыть Happ напрямую с ключом без лишнего кодирования
+                // Для iOS это самый надежный способ вызвать авто-импорт
+                window.location.replace("happ://import/" + rawVless);
                 status.innerText = "Открываем Happ...";
-            }, 600);
+            }, 500);
 
-            // 3. Запасной запуск через 2.5 секунды с подсказкой
+            // 3. Запасной метод, если первый не открыл импорт
             setTimeout(() => {
-                // Если приложение не открыло окно импорта само
                 window.location.href = "happ://";
                 status.innerHTML = "Готово!<br>Если импорт не начался автоматически — нажмите в приложении кнопку <b>'Из буфера'</b>.";
-            }, 2500);
+            }, 2000);
         }
     </script>
 </body>
