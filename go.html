@@ -14,7 +14,6 @@
             justify-content: center; 
             height: 100vh; 
             margin: 0; 
-            overflow: hidden;
         }
         .card { 
             background: #161b22; 
@@ -23,30 +22,8 @@
             border: 1px solid rgba(0, 223, 216, 0.3); 
             width: 85%; 
             max-width: 350px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            animation: fadeIn 0.5s ease-out;
+            text-align: center;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .logo { font-size: 40px; margin-bottom: 20px; }
-        h2 { color: #00dfd8; margin: 0 0 10px 0; font-size: 22px; }
-        p { color: #8b949e; font-size: 15px; line-height: 1.5; margin-bottom: 30px; }
-        
-        .loader {
-            width: 40px; height: 40px;
-            border: 3px solid rgba(0, 223, 216, 0.1);
-            border-top: 3px solid #00dfd8;
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         .btn { 
             background: #00dfd8; 
             color: #0b0e14; 
@@ -59,31 +36,21 @@
             font-size: 17px;
             box-shadow: 0 4px 15px rgba(0, 223, 216, 0.3);
         }
-        .status-msg {
-            margin-top: 20px;
-            font-size: 13px;
-            color: #58a6ff;
-            min-height: 20px;
-        }
+        .status-msg { margin-top: 20px; font-size: 13px; color: #58a6ff; }
     </style>
 </head>
 <body>
     <div class="card">
-        <div class="logo">🚀</div>
+        <div style="font-size: 40px; margin-bottom: 20px;">🚀</div>
         <h2>Rocket VPN</h2>
-        <p id="desc">Нажми кнопку ниже для автоматического добавления подписки в Happ.</p>
-        <div id="loader" class="loader" style="display:none;"></div>
+        <p id="desc" style="color: #8b949e; margin-bottom: 30px;">Нажмите кнопку для автоматического импорта в Happ.</p>
         <button id="mainBtn" onclick="superImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
         <div id="status" class="status-msg"></div>
     </div>
 
     <script>
         function superImport() {
-            const btn = document.getElementById('mainBtn');
-            const loader = document.getElementById('loader');
             const status = document.getElementById('status');
-            const desc = document.getElementById('desc');
-
             const urlParams = new URLSearchParams(window.location.search);
             const enc = urlParams.get('enc');
             
@@ -92,15 +59,10 @@
                 return;
             }
             
-            btn.style.display = 'none';
-            desc.style.display = 'none';
-            loader.style.display = 'block';
-            status.innerText = "Запуск импорта...";
-
-            // 1. Декодируем vless ссылку
+            // 1. Декодируем
             const rawVless = atob(enc);
 
-            // 2. Копируем в буфер (запасной вариант)
+            // 2. Копируем в буфер (обязательно для подстраховки)
             const el = document.createElement('textarea');
             el.value = rawVless;
             document.body.appendChild(el);
@@ -108,28 +70,33 @@
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 3. ЛОГИКА КОНКУРЕНТОВ (sing-box протокол)
-            // Happ лучше всего распознает авто-импорт через эту схему
-            const importUrl = "sing-box://import/" + encodeURIComponent(rawVless);
+            // 3. ФОРМАТ КОНКУРЕНТОВ:
+            // Happ лучше всего импортирует через схему sing-box.
+            // Если rawVless - это ссылка на подписку (http), используем это.
+            // Если это vless://, тоже работает.
+            const configUrl = encodeURIComponent(rawVless);
             
-            // Создаем невидимый элемент для клика
-            const link = document.createElement('a');
-            link.href = importUrl;
-            document.body.appendChild(link);
+            // Пробуем несколько методов одновременно для iOS
             
-            setTimeout(() => {
-                link.click(); // Симулируем нажатие пользователя
-                document.body.removeChild(link);
-            }, 100);
+            // Метод А: Прямой вызов через скрытую ссылку (самый надежный)
+            const a = document.createElement('a');
+            a.href = "sing-box://import/" + configUrl + "#Rocket%20VPN";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
 
-            // 4. Дополнительная попытка через прямой вызов happ://
-            setTimeout(() => {
-                window.location.href = "happ://import/" + encodeURIComponent(rawVless);
-            }, 800);
+            status.innerText = "Запуск Happ...";
 
+            // Метод Б: Если А не сработал через 500мс
             setTimeout(() => {
-                status.innerHTML = "Готово!<br>Если приложение не открылось — нажмите <b>'Из буфера'</b> в приложении.";
-            }, 2500);
+                window.location.href = "happ://import/" + configUrl;
+            }, 500);
+
+            // Метод В: Для совсем старых версий через 1.2 сек
+            setTimeout(() => {
+                window.location.href = rawVless;
+                status.innerHTML = "Готово!<br>Если приложение не открылось автоматически — нажмите в приложении <b>'Из буфера'</b>.";
+            }, 1200);
         }
     </script>
 </body>
