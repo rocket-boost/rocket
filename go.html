@@ -80,7 +80,7 @@
     <div class="card">
         <div class="logo">🚀</div>
         <h2>Rocket VPN</h2>
-        <p id="desc">Нажми кнопку ниже, чтобы автоматически добавить ключ в приложение.</p>
+        <p id="desc">Нажми кнопку ниже, чтобы автоматически добавить ключ в приложение Happ.</p>
         
         <div id="loader" class="loader" style="display:none;"></div>
         
@@ -98,19 +98,22 @@
 
             const urlParams = new URLSearchParams(window.location.search);
             const enc = urlParams.get('enc');
-            const os = urlParams.get('os');
             
-            if (!enc) return;
+            if (!enc) {
+                status.innerText = "Ошибка: Ключ не найден.";
+                return;
+            }
             
             // Визуальный отклик
             btn.style.display = 'none';
             desc.style.display = 'none';
             loader.style.display = 'block';
-            status.innerText = "Копируем ключ и запускаем...";
+            status.innerText = "Подготовка ключа...";
 
+            // Декодируем vless ссылку из base64
             const rawVless = atob(enc);
 
-            // 1. Копируем в буфер
+            // 1. Копируем в буфер (на всякий случай)
             const el = document.createElement('textarea');
             el.value = rawVless;
             document.body.appendChild(el);
@@ -118,23 +121,18 @@
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 2. Логика перехода
+            // 2. Логика перехода в Happ
             setTimeout(() => {
-                if (os === 'ios') {
-                    window.location.href = rawVless;
-                } else {
-                    const configB64 = btoa(rawVless);
-                    window.location.href = "v2box://install-config?url=" + configB64;
-                }
-                
-                status.innerText = "Открываем V2Box...";
+                // Прямой импорт в Happ (работает и на iOS и на Android)
+                window.location.href = "happ://import/" + rawVless;
+                status.innerText = "Открываем Happ...";
             }, 600);
 
-            // 3. Запасной запуск через 2 секунды
+            // 3. Запасной запуск, если прямая ссылка не сработала
             setTimeout(() => {
-                window.location.href = "v2box://";
-                status.innerText = "Готово! Импортируйте ключ в приложении.";
-            }, 2000);
+                window.location.href = "happ://";
+                status.innerText = "Готово! Ключ скопирован. Если Happ не открылся, вставьте его вручную.";
+            }, 2500);
         }
     </script>
 </body>
