@@ -109,10 +109,10 @@
             loader.style.display = 'block';
             status.innerText = "Подготовка ключа...";
 
-            // Декодируем ключ
+            // Декодируем vless ссылку
             const rawVless = atob(enc);
 
-            // 1. Копируем в буфер (для Android это важно)
+            // 1. Копируем в буфер обмена (обязательно для Android и ручного ввода)
             const el = document.createElement('textarea');
             el.value = rawVless;
             document.body.appendChild(el);
@@ -120,25 +120,29 @@
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 2. Логика автоматического добавления
+            // 2. ПРИНУДИТЕЛЬНЫЙ ВЫЗОВ HAPP (через скрытую ссылку)
+            // Мы используем happ://import/, чтобы не давать системе выбора между V2box и другими
+            const happLink = "happ://import/" + rawVless;
+            
+            const link = document.createElement('a');
+            link.href = happLink;
+            document.body.appendChild(link);
+            
             setTimeout(() => {
-                // СЕКРЕТ ТУТ: Мы открываем прямую vless ссылку. 
-                // iOS сама спросит "Открыть в Happ?" и импорт произойдет мгновенно.
-                window.location.href = rawVless; 
-                status.innerText = "Открываем приложение...";
-            }, 400);
+                link.click(); // Эмулируем реальный клик
+                status.innerText = "Запуск Happ...";
+                document.body.removeChild(link);
+            }, 300);
 
-            // 3. Запасной вариант для старых версий
+            // 3. Запасной метод через замену location (если клик не прошел)
             setTimeout(() => {
-                // Если прямая ссылка не подхватилась, пробуем через протокол приложения
-                if (status.innerText !== "Готово!") {
-                    window.location.href = "happ://import/" + encodeURIComponent(rawVless);
-                }
-            }, 1500);
+                window.location.replace(happLink);
+            }, 1000);
 
+            // 4. Финальное сообщение
             setTimeout(() => {
-                status.innerHTML = "Готово!<br>Если конфиг не добавился — нажмите в приложении <b>'Из буфера'</b>.";
-            }, 3000);
+                status.innerHTML = "Готово!<br>Если приложение не открылось автоматически — нажмите в Happ кнопку <b>'Из буфера'</b>.";
+            }, 2500);
         }
     </script>
 </body>
