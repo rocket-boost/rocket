@@ -123,7 +123,9 @@
 
             // 2. Логика перехода в Happ (используем прямой импорт)
             setTimeout(() => {
-                window.location.href = "happ://import/" + rawVless;
+                // encodeURIComponent решает проблему "DeepLink" на iOS, кодируя спецсимволы ключа
+                const safeVless = encodeURIComponent(rawVless);
+                window.location.href = "happ://import/" + safeVless;
                 status.innerText = "Открываем Happ...";
             }, 600);
 
