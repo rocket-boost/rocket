@@ -1,337 +1,103 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rocket VPN</title>
-    <meta name="lava-verify" content="677db46633fe55a6" />
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rocket VPN - Подключение</title>
     <style>
-        :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
-        body { margin: 0; padding: 20px; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; min-height: 100vh; }
-        
-        .stars-container { position: fixed; top: -10%; left: -10%; width: 120%; height: 120%; z-index: -1; transition: transform 0.1s ease-out; }
-        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; }
-        @keyframes move { from { transform: translateY(110vh); } to { transform: translateY(-10vh); } }
-
-        /* Живые звезды (падающие) */
-        .shooting-star {
-            position: absolute;
-            top: -10px;
-            width: 2px;
-            height: 2px;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 10px 2px #fff;
-            animation: shooting 2.5s linear infinite;
-            z-index: -1;
-            opacity: 0;
-        }
-        .shooting-star::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 60px;
-            height: 1px;
-            background: linear-gradient(90deg, #fff, transparent);
-        }
-        @keyframes shooting {
-            0% { transform: translate(120vw, 0) rotate(-45deg); opacity: 1; }
-            100% { transform: translate(-20vw, 100vh) rotate(-45deg); opacity: 0; }
-        }
-        
-        .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
-        .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 15px; text-align: center; position: relative; overflow: hidden; }
-        
-        /* Анимированный блик */
-        .card-balance::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -150%;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
-            transform: skewX(-25deg);
-            animation: shine 4s infinite;
-        }
-        @keyframes shine {
-            0% { left: -150%; }
-            20% { left: 150%; }
-            100% { left: 150%; }
-        }
-
-        .balance-val { font-size: 36px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        .ref-card { background: rgba(0, 223, 216, 0.05); border: 1px solid rgba(0, 223, 216, 0.2); border-radius: 20px; padding: 10px; margin-top: 5px; }
-        .ref-val { font-size: 20px; font-weight: 700; color: var(--accent-cyan); }
-
-        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; text-align: center; position: relative; overflow: hidden; }
-        .box-title { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 3px; }
-        .box-data { font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 5px; }
-
-        /* Прогресс-бар подписки */
-        .sub-progress-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; }
-        .sub-progress-fill { height: 100%; width: 0%; background: var(--accent-cyan); border-radius: 2px; transition: 1s; box-shadow: 0 0 8px var(--accent-cyan); }
-        
-        /* Круговой индикатор */
-        .status-ring { width: 8px; height: 8px; border-radius: 50%; border: 2px solid currentColor; display: inline-block; animation: ring-pulse 1.5s infinite; }
-        @keyframes ring-pulse { 0% { box-shadow: 0 0 0 0px rgba(255,255,255,0.4); } 100% { box-shadow: 0 0 0 6px rgba(255,255,255,0); } }
-
-        .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; text-decoration: none; display: block; text-align: center; box-sizing: border-box; position: relative; opacity: 0.92; }
-        
-        /* Интерактивность кнопок */
-        .btn:active { transform: scale(0.96); opacity: 1; }
-        
-        .btn-rocket { 
-            background: linear-gradient(45deg, rgba(0, 198, 255, 0.85), rgba(0, 114, 255, 0.85)); 
-            box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); 
-            animation: pulse 2s infinite, btn-glow 2s ease-in-out infinite; 
-            overflow: visible; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        /* Эффект свечения */
-        @keyframes btn-glow {
-            0%, 100% { box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4), 0 0 10px rgba(0, 223, 216, 0.2); }
-            50% { box-shadow: 0 5px 25px rgba(0, 114, 255, 0.7), 0 0 20px rgba(0, 223, 216, 0.5); }
-        }
-
-        .rocket-icon { 
-            font-size: 24px; 
-            display: inline-block; 
-            filter: drop-shadow(0 0 8px #ff4d4d);
-            position: relative;
-        }
-
-        .btn-vpn { background: linear-gradient(45deg, rgba(255, 0, 128, 0.85), rgba(121, 40, 202, 0.85)); }
-        .btn-pay { background: linear-gradient(45deg, rgba(0, 223, 216, 0.85), rgba(0, 124, 240, 0.85)); }
-        .btn-ref { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); }
-        .btn-support { background: rgba(255, 255, 255, 0.12); border: 1px dashed rgba(255, 255, 255, 0.3); font-size: 13px; margin-top: 10px; }
-        
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
-        
-        #rocket-overlay { 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            background: rgba(15, 12, 41, 0.7); 
-            display: none; 
-            justify-content: center; 
+        body { 
+            background: #0b0e14; 
+            color: white; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            display: flex; 
             align-items: center; 
-            z-index: 9999; 
-            pointer-events: none;
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
         }
-        .big-rocket { 
-            font-size: 130px; 
-            position: absolute; 
-            bottom: -250px; 
-            filter: drop-shadow(0 0 40px #00dfd8);
-            will-change: transform;
+        .card { 
+            background: #161b22; 
+            padding: 40px 30px; 
+            border-radius: 24px; 
+            border: 1px solid rgba(0, 223, 216, 0.3); 
+            width: 85%; 
+            max-width: 350px; 
+            text-align: center;
         }
-
-        .launch-anim { 
-            animation: launch 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards; 
+        .btn { 
+            background: #00dfd8; 
+            color: #0b0e14; 
+            padding: 18px; 
+            border-radius: 16px; 
+            font-weight: bold; 
+            width: 100%; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 17px;
+            box-shadow: 0 4px 15px rgba(0, 223, 216, 0.3);
         }
-        @keyframes launch {
-            0% { transform: translateY(0) scale(0.6); opacity: 0; }
-            10% { opacity: 1; }
-            100% { transform: translateY(-160vh) scale(2.2); opacity: 1; }
-        }
-
-        .modal { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1a1a2e; border-top: 2px solid var(--accent-cyan); border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 25px 20px; z-index: 100; transition: 0.4s; box-sizing: border-box; }
-        .modal.active { bottom: 0; }
-        input { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--accent-cyan); background: rgba(255,255,255,0.05); color: white; font-size: 20px; text-align: center; margin-bottom: 20px; box-sizing: border-box; }
-        .pay-option { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-        
-        .badge-sale { background: var(--accent-pink); color: white; font-size: 10px; padding: 4px 8px; border-radius: 10px; font-weight: 800; }
+        .status-msg { margin-top: 20px; font-size: 13px; color: #58a6ff; }
     </style>
 </head>
 <body>
-    <div id="rocket-overlay"><div class="big-rocket" id="emojiRocket">🚀</div></div>
-    <div class="stars-container" id="stars">
-        <div class="shooting-star"></div>
-    </div>
-    
-    <div class="main-container">
-        <div class="card-balance">
-            <div style="font-size: 12px; opacity: 0.8;">Основной баланс</div>
-            <div class="balance-val" id="balanceDisplay">0.00 ₽</div>
-            
-            <div class="ref-card">
-                <div style="font-size: 10px; text-transform: uppercase; opacity: 0.7;">Реферальный бонус</div>
-                <div class="ref-val" id="refBalanceDisplay">0.00 ₽</div>
-            </div>
-            
-            <div style="font-size: 10px; opacity: 0.5; margin-top: 10px;" id="userDisplay">ID: ---</div>
-        </div>
-
-        <div class="grid-info">
-            <div class="box"><div class="box-title">Статус</div><div class="box-data" id="statusDisplay" style="color:#ff4d4d"><span class="status-ring"></span> Не активен</div></div>
-            <div class="box">
-                <div class="box-title">Доступно</div>
-                <div class="box-data" id="daysDisplay">0 дней</div>
-                <div class="sub-progress-bg"><div class="sub-progress-fill" id="subBar"></div></div>
-            </div>
-        </div>
-        
-        <button class="btn btn-rocket" id="rocketBtn">
-            <span class="rocket-icon">🚀</span>
-            ПОДКЛЮЧИТЬ VPN
-        </button>
-        
-        <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
-        <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
-        <button class="btn btn-ref" id="refBtn">👥 РЕФЕРАЛЬНАЯ ПРОГРАММА</button>
-        
-        <a href="https://t.me/SuperRocketSupport" class="btn btn-support">💬 Обратная связь с поддержкой</a>
+    <div class="card">
+        <div style="font-size: 40px; margin-bottom: 20px;">🚀</div>
+        <h2>Rocket VPN</h2>
+        <p id="desc" style="color: #8b949e; margin-bottom: 30px;">Нажмите кнопку для автоматического импорта в Happ.</p>
+        <button id="mainBtn" onclick="superImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
+        <div id="status" class="status-msg"></div>
     </div>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
-
-        tg.BackButton.show();
-        tg.BackButton.onClick(function() {
-            tg.close();
-        });
-        
-        const params = new URLSearchParams(window.location.search);
-        const balance = params.get('balance') || "0";
-        const refBalance = params.get('ref_balance') || "0";
-        const days = params.get('days') || "0";
-        const userId = params.get('id') || "---";
-
-        document.getElementById('balanceDisplay').innerText = balance + " ₽";
-        document.getElementById('refBalanceDisplay').innerText = refBalance + " ₽";
-        document.getElementById('userDisplay').innerText = "ID: " + userId;
-        document.getElementById('daysDisplay').innerText = days + " дней";
-
-        // Звуковой эффект
-        const launchSound = new Audio('https://www.soundjay.com/nature/sounds/fire-1.mp3'); 
-
-        // Логика прогресс-бара (макс 30 дней для примера)
-        const dayVal = parseInt(days);
-        if (dayVal > 0) { 
-            document.getElementById('statusDisplay').innerHTML = '<span class="status-ring"></span> Активен'; 
-            document.getElementById('statusDisplay').style.color = "#00ff00"; 
-            const percent = Math.min((dayVal / 30) * 100, 100);
-            document.getElementById('subBar').style.width = percent + "%";
-        }
-
-        function handleLaunch(actionData) {
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            launchSound.play().catch(() => {}); // Воспроизведение звука
-            const overlay = document.getElementById('rocket-overlay');
-            const rocket = document.getElementById('emojiRocket');
+        function superImport() {
+            const status = document.getElementById('status');
+            const urlParams = new URLSearchParams(window.location.search);
+            const enc = urlParams.get('enc');
             
-            overlay.style.display = 'flex';
-            rocket.classList.add('launch-anim');
+            if (!enc) {
+                status.innerText = "Ошибка: Ключ не найден.";
+                return;
+            }
             
+            // 1. Декодируем
+            const rawVless = atob(enc);
+
+            // 2. Копируем в буфер (обязательно для подстраховки)
+            const el = document.createElement('textarea');
+            el.value = rawVless;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            // 3. ФОРМАТ КОНКУРЕНТОВ:
+            // Happ лучше всего импортирует через схему sing-box.
+            // Если rawVless - это ссылка на подписку (http), используем это.
+            // Если это vless://, тоже работает.
+            const configUrl = encodeURIComponent(rawVless);
+            
+            // Пробуем несколько методов одновременно для iOS
+            
+            // Метод А: Прямой вызов через скрытую ссылку (самый надежный)
+            const a = document.createElement('a');
+            a.href = "sing-box://import/" + configUrl + "#Rocket%20VPN";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            status.innerText = "Запуск Happ...";
+
+            // Метод Б: Если А не сработал через 500мс
             setTimeout(() => {
-                tg.sendData(JSON.stringify(actionData));
-                tg.close();
-            }, 3000); 
-        }
+                window.location.href = "happ://import/" + configUrl;
+            }, 500);
 
-        document.getElementById('refBtn').onclick = function() {
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            tg.sendData(JSON.stringify({action: 'ref_program'}));
-            tg.close();
-        };
-
-        document.getElementById('rocketBtn').onclick = function() {
-            handleLaunch({action: 'request_vpn_button'});
-        };
-
-        function openTariffModal() { 
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            closeAll(); 
-            document.getElementById('tariffModal').classList.add('active'); 
+            // Метод В: Для совсем старых версий через 1.2 сек
+            setTimeout(() => {
+                window.location.href = rawVless;
+                status.innerHTML = "Готово!<br>Если приложение не открылось автоматически — нажмите в приложении <b>'Из буфера'</b>.";
+            }, 1200);
         }
-        function openAmountModal() { 
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            closeAll(); 
-            document.getElementById('amountModal').classList.add('active'); 
-        }
-        function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
-        
-        function sendPayment() {
-            const val = document.getElementById('sumInput').value;
-            if(!val || isNaN(val) || parseInt(val) <= 0) {
-                tg.showAlert("Введите корректную сумму пополнения");
-                return;
-            }
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            tg.sendData(JSON.stringify({
-                action: "deposit",
-                amount: parseInt(val)
-            }));
-            tg.close();
-        }
-
-        function confirmBuy(m, p) {
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            if (parseFloat(balance) < p) {
-                tg.showConfirm("Недостаточно средств! Перейти к пополнению баланса?", (ok) => {
-                    if (ok) {
-                        closeAll();
-                        openAmountModal();
-                    }
-                });
-                return;
-            }
-            
-            tg.showConfirm(`Вы уверены, что хотите выбрать тариф на ${m} мес. за ${p} ₽?`, (ok) => {
-                if (ok) {
-                    handleLaunch({action: "buy_subscription", months: m, price: p});
-                }
-            });
-        }
-
-        const container = document.getElementById('stars');
-        for (let i = 0; i < 45; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            const size = Math.random() * 2 + 1;
-            star.style.width = star.style.height = size + 'px';
-            star.style.left = Math.random() * 100 + 'vw';
-            const speed = size > 2 ? Math.random() * 2 + 2 : Math.random() * 5 + 4;
-            star.style.animationDuration = speed + 's';
-            star.style.opacity = Math.random();
-            container.appendChild(star);
-        }
-
-        // Параллакс эффект
-        window.addEventListener('deviceorientation', (event) => {
-            const x = event.beta;  // -180 to 180
-            const y = event.gamma; // -90 to 90
-            if (x !== null && y !== null) {
-                const moveX = y / 4;
-                const moveY = (x - 45) / 4;
-                container.style.transform = `translate(${moveX}px, ${moveY}px)`;
-            }
-        });
     </script>
-    
-    <div class="modal" id="tariffModal">
-        <div style="text-align:center; margin-bottom:20px; font-weight:700;">ТАРИФЫ</div>
-        <div class="pay-option" onclick="confirmBuy(1, 199)"><span>1 месяц - 199 ₽</span></div>
-        <div class="pay-option" onclick="confirmBuy(3, 499)"><span>3 месяца - 499 ₽</span> <span class="badge-sale">ВЫГОДА 16%</span></div>
-        <div class="pay-option" onclick="confirmBuy(6, 899)"><span>6 месяцев - 899 ₽</span> <span class="badge-sale">ВЫГОДА 25%</span></div>
-        <div class="pay-option" onclick="confirmBuy(12, 1599)"><span>12 месяцев - 1599 ₽</span> <span class="badge-sale">ВЫГОДА 33%</span></div>
-        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
-    </div>
-    <div class="modal" id="amountModal">
-        <div style="text-align:center; margin-bottom:15px; font-size:14px;">Введите сумму пополнения</div>
-        <input type="number" id="sumInput" placeholder="Сумма (₽)" min="10">
-        <button class="btn btn-pay" onclick="sendPayment()">ПЕРЕЙТИ К ОПЛАТЕ</button>
-        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
-    </div>
 </body>
 </html>
