@@ -356,6 +356,37 @@
                 container.style.transform = `translate(${moveX}px, ${moveY}px)`;
             }
         });
+
+        async function refreshBalance() {
+    const userId = new URLSearchParams(window.location.search).get('id');
+    if (!userId || userId === "---") return;
+
+    try {
+        // Замени IP на свой, если он другой
+        const response = await fetch(https://138.124.54.178:9876/get_user_data?user_id=${userId});
+        const data = await response.json();
+
+        if (data.balance !== undefined) {
+            document.getElementById('balanceDisplay').innerText = data.balance + " ₽";
+            document.getElementById('refBalanceDisplay').innerText = data.ref_balance + " ₽";
+            document.getElementById('daysDisplay').innerText = data.days + " дней";
+            
+            const dayVal = parseInt(data.days);
+            if (dayVal > 0) {
+                document.getElementById('statusDisplay').innerHTML = '<span class="status-ring"></span> Активен';
+                document.getElementById('statusDisplay').style.color = "#00ff00";
+                const percent = Math.min((dayVal / 30) * 100, 100);
+                document.getElementById('subBar').style.width = percent + "%";
+            }
+        }
+    } catch (e) {
+        console.error("Ошибка API:", e);
+    }
+}
+
+// Запуск при открытии и повтор каждые 5 секунд
+refreshBalance();
+setInterval(refreshBalance, 5000);
     </script>
     
     <div class="modal" id="tariffModal">
@@ -374,3 +405,4 @@
     </div>
 </body>
 </html>
+
