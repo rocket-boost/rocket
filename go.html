@@ -77,22 +77,19 @@
 
             status.innerText = "Запуск Happ...";
 
-            // Рабочий формат (судя по логам)
-            window.location.href = `happ://url?link=${encodeURIComponent(rawVless)}`;
+            // 3. Открываем Happ с subscription URL
+            // Формат как у капибары: happ://add/https://domain/token
+            window.location.href = `happ://add/${encodeURIComponent(rawVless)}`;
 
-            // Фолбэки с задержкой (на случай если первый не сработал)
+            // Фолбэк через 500мс
             setTimeout(() => {
-                window.location.href = rawVless; // vless:// протокол
+                window.location.href = `happ://add/${encodeURIComponent(rawVless)}`;
             }, 500);
-
-            setTimeout(() => {
-                window.location.href = `happ://import?url=${encodeURIComponent(rawVless)}`;
-            }, 1000);
 
             // Финальное сообщение
             setTimeout(() => {
-                status.innerHTML = "Готово!<br>Если Happ не открылся — нажмите <b>'Из буфера'</b>.";
-            }, 2000);
+                status.innerHTML = "✅ Готово!<br><br>Если Happ не открылся — откройте приложение и нажмите <b>'Из буфера'</b>.";
+            }, 1500);
         }
     </script>
 </body>
