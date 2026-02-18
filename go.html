@@ -59,56 +59,40 @@
                 return;
             }
 
-            // 1. Декодируем — получаем subscription URL
-            const subUrl = atob(enc);
-            
-            console.log("Subscription URL:", subUrl);
+            // 1. Декодируем
+            const rawVless = atob(enc);
 
-            status.innerText = "Загрузка конфигурации...";
-
+            // 2. Копируем в буфер
             try {
-                // 2. Скачиваем vless:// ссылку с нашего API
-                const response = await fetch(subUrl, {
-                    method: 'GET',
-                    redirect: 'follow'
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Ошибка загрузки: ' + response.status);
-                }
-                
-                // 3. Получаем vless:// ссылку из ответа
-                const vlessUrl = await response.text();
-                console.log("VLESS URL:", vlessUrl);
-
-                // 4. Копируем в буфер
-                try {
-                    await navigator.clipboard.writeText(vlessUrl);
-                } catch (e) {
-                    const el = document.createElement('textarea');
-                    el.value = vlessUrl;
-                    document.body.appendChild(el);
-                    el.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(el);
-                }
-
-                status.innerText = "Запуск Happ...";
-
-                // 5. Открываем Happ через vless:// протокол
-                setTimeout(() => {
-                    window.location.href = vlessUrl;
-                }, 100);
-
-                // Финальное сообщение
-                setTimeout(() => {
-                    status.innerHTML = "✅ Ключ скопирован!<br><br>Откройте Happ и нажмите <b>'Из буфера'</b>.";
-                }, 1500);
-                
-            } catch (error) {
-                console.error("Ошибка:", error);
-                status.innerText = "Ошибка: " + error.message;
+                await navigator.clipboard.writeText(rawVless);
+            } catch (e) {
+                // Фолбэк для старых браузеров
+                const el = document.createElement('textarea');
+                el.value = rawVless;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
             }
+
+            status.innerText = "Запуск Happ...";
+
+            // Рабочий формат (судя по логам)
+            window.location.href = `happ://url?link=${encodeURIComponent(rawVless)}`;
+
+            // Фолбэки с задержкой (на случай если первый не сработал)
+            setTimeout(() => {
+                window.location.href = rawVless; // vless:// протокол
+            }, 500);
+
+            setTimeout(() => {
+                window.location.href = `happ://import?url=${encodeURIComponent(rawVless)}`;
+            }, 1000);
+
+            // Финальное сообщение
+            setTimeout(() => {
+                status.innerHTML = "Готово!<br>Если Happ не открылся — нажмите <b>'Из буфера'</b>.";
+            }, 2000);
         }
     </script>
 </body>
