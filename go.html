@@ -44,7 +44,11 @@
         <div style="font-size: 40px; margin-bottom: 20px;">🚀</div>
         <h2>Rocket VPN</h2>
         <p id="desc" style="color: #8b949e; margin-bottom: 30px;">Нажмите кнопку для автоматического импорта в Happ.</p>
-        <button id="mainBtn" onclick="superImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
+        <button id="mainBtn" onclick="superImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ В HAPP</button>
+        <div style="margin-top:20px;">
+            <a href="https://apps.apple.com/ru/app/happ-proxy-utility-plus/id6746188973" class="btn" style="background:#007aff;color:white;margin-bottom:10px;display:block;">⬇️ Скачать iOS</a>
+            <a href="https://play.google.com/store/apps/details?id=com.happproxy" class="btn" style="background:#34a853;color:white;display:block;">⬇️ Скачать Android</a>
+        </div>
         <div id="status" class="status-msg"></div>
     </div>
 
@@ -53,50 +57,46 @@
             const status = document.getElementById('status');
             const urlParams = new URLSearchParams(window.location.search);
             const enc = urlParams.get('enc');
-            
+            const happ = urlParams.get('happ');
             if (!enc) {
                 status.innerText = "Ошибка: Ключ не найден.";
                 return;
             }
-            
-            // 1. Декодируем
             const rawVless = atob(enc);
-
-            // 2. Копируем в буфер (обязательно для подстраховки)
+            // Копируем в буфер (на всякий случай)
             const el = document.createElement('textarea');
             el.value = rawVless;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-
-            // 3. ФОРМАТ КОНКУРЕНТОВ:
-            // Happ лучше всего импортирует через схему sing-box.
-            // Если rawVless - это ссылка на подписку (http), используем это.
-            // Если это vless://, тоже работает.
             const configUrl = encodeURIComponent(rawVless);
-            
-            // Пробуем несколько методов одновременно для iOS
-            
-            // Метод А: Прямой вызов через скрытую ссылку (самый надежный)
-            const a = document.createElement('a');
-            a.href = "sing-box://import/" + configUrl + "#Rocket%20VPN";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-
-            status.innerText = "Запуск Happ...";
-
-            // Метод Б: Если А не сработал через 500мс
-            setTimeout(() => {
+            if (happ === 'ios') {
+                // Для iOS — sing-box и happ схемы
+                const a = document.createElement('a');
+                a.href = "sing-box://import/" + configUrl + "#Rocket%20VPN";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                status.innerText = "Запуск Happ...";
+                setTimeout(() => {
+                    window.location.href = "happ://import/" + configUrl;
+                }, 500);
+                setTimeout(() => {
+                    window.location.href = rawVless;
+                    status.innerHTML = "Готово!<br>Если приложение не открылось автоматически — нажмите в приложении <b>'Из буфера'</b>.";
+                }, 1200);
+            } else if (happ === 'android') {
+                // Для Android — только happ схема
                 window.location.href = "happ://import/" + configUrl;
-            }, 500);
-
-            // Метод В: Для совсем старых версий через 1.2 сек
-            setTimeout(() => {
-                window.location.href = rawVless;
-                status.innerHTML = "Готово!<br>Если приложение не открылось автоматически — нажмите в приложении <b>'Из буфера'</b>.";
-            }, 1200);
+                status.innerText = "Запуск Happ...";
+                setTimeout(() => {
+                    window.location.href = rawVless;
+                    status.innerHTML = "Готово!<br>Если приложение не открылось автоматически — нажмите в приложении <b>'Из буфера'</b>.";
+                }, 1200);
+            } else {
+                status.innerText = "Ошибка: Неизвестная платформа.";
+            }
         }
     </script>
 </body>
