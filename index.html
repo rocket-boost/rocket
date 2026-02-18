@@ -139,46 +139,262 @@
         .badge-sale { background: var(--accent-pink); color: white; font-size: 10px; padding: 4px 8px; border-radius: 10px; font-weight: 800; }
         .work-notice { text-align: center; line-height: 1.5; margin-bottom: 20px; }
         .work-title { color: var(--accent-pink); font-weight: 800; font-size: 18px; margin-bottom: 10px; }
+    <style>
+        :root {
+            --main-bg: #181c24;
+            --panel-bg: #232a36;
+            --accent: #00dfd8;
+            --accent2: #ff0080;
+            --text: #fff;
+            --radius: 18px;
+            --shadow: 0 4px 32px 0 rgba(0,0,0,0.18);
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: var(--main-bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .main-wrap {
+            width: 100vw;
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 0 0 32px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 24px;
+        }
+        .balance-block {
+            background: var(--panel-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 32px 20px 20px 20px;
+            margin-top: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .balance-title {
+            font-size: 13px;
+            opacity: 0.7;
+            letter-spacing: 1px;
+        }
+        .balance-val {
+            font-size: 40px;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--accent2), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .ref-block {
+            background: rgba(0,223,216,0.08);
+            border-radius: var(--radius);
+            padding: 10px 16px;
+            margin-top: 8px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .ref-title {
+            font-size: 11px;
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
+        .ref-val {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--accent);
+            margin-top: 2px;
+        }
+        .user-id {
+            font-size: 11px;
+            opacity: 0.5;
+            margin-top: 8px;
+        }
+        .status-row {
+            display: flex;
+            gap: 16px;
+            justify-content: space-between;
+            margin: 0 0 0 0;
+        }
+        .status-card, .days-card {
+            flex: 1 1 0;
+            background: var(--panel-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 18px 10px 14px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-title, .days-title {
+            font-size: 11px;
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
+        .status-val {
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .days-val {
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .sub-progress-bg {
+            width: 100%;
+            height: 5px;
+            background: #222c33;
+            border-radius: 3px;
+            margin-top: 7px;
+            overflow: hidden;
+        }
+        .sub-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            border-radius: 3px;
+            transition: 1s;
+            box-shadow: 0 0 8px var(--accent);
+        }
+        .btns-block {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin: 0 0 0 0;
+        }
+        .btn {
+            border: none;
+            border-radius: var(--radius);
+            font-size: 16px;
+            font-weight: 800;
+            color: #fff;
+            cursor: pointer;
+            padding: 18px 0;
+            width: 100%;
+            background: linear-gradient(90deg, var(--accent2), var(--accent));
+            box-shadow: 0 2px 12px 0 rgba(0,223,216,0.08);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 1px 4px 0 rgba(0,223,216,0.12);
+        }
+        .btn.btn-vpn {
+            background: linear-gradient(90deg, #ff0080, #7928ca);
+        }
+        .btn.btn-pay {
+            background: linear-gradient(90deg, #00dfd8, #007cf0);
+        }
+        .btn.btn-ref {
+            background: rgba(0,223,216,0.12);
+            color: var(--accent);
+            border: 1.5px solid var(--accent);
+        }
+        .btn.btn-support {
+            background: none;
+            color: #fff;
+            border: 1.5px dashed #fff2;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .rocket-icon {
+            font-size: 22px;
+            margin-right: 7px;
+        }
+        .modal {
+            background: #232a36;
+            border-radius: 22px 22px 0 0;
+            box-shadow: 0 -8px 32px 0 rgba(0,0,0,0.18);
+            padding: 28px 18px 18px 18px;
+            position: fixed;
+            left: 0; right: 0; bottom: -100%;
+            z-index: 100;
+            transition: bottom 0.25s cubic-bezier(.4,1.3,.6,1);
+        }
+        .modal.active { bottom: 0; }
+        .pay-option {
+            background: #232a36;
+            border-radius: var(--radius);
+            padding: 16px 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1.5px solid #fff1;
+            font-size: 15px;
+            font-weight: 700;
+            transition: background 0.15s, transform 0.1s;
+        }
+        .pay-option:active {
+            background: #2a3342;
+            transform: scale(0.98);
+        }
+        .badge-sale {
+            background: var(--accent2);
+            color: #fff;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+        .work-notice {
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        .work-title {
+            color: var(--accent2);
+            font-weight: 800;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
     </style>
-</head>
-<body onclick="handleGlobalClick(event)">
-    <div id="rocket-overlay"><div class="big-rocket" id="emojiRocket">🚀</div></div>
-    <div class="stars-container" id="stars">
         <div class="shooting-star"></div>
     </div>
     
-    <div class="main-container">
-        <div class="card-balance skeleton" id="skeleton-card">
-            <div style="font-size: 12px; opacity: 0.8;">Основной баланс</div>
+    <div class="main-wrap">
+        <div class="balance-block skeleton" id="skeleton-card">
+            <div class="balance-title">Основной баланс</div>
             <div class="balance-val" id="balanceDisplay">0.00 ₽</div>
-            
-            <div class="ref-card">
-                <div style="font-size: 10px; text-transform: uppercase; opacity: 0.7;">Реферальный бонус</div>
+            <div class="ref-block">
+                <div class="ref-title">Реферальный бонус</div>
                 <div class="balance-val" id="refBalanceDisplay">0.00 ₽</div>
             </div>
-            
-            <div style="font-size: 10px; opacity: 0.5; margin-top: 10px;" id="userDisplay">ID: ---</div>
+            <div class="user-id" id="userDisplay">ID: ---</div>
         </div>
-
-        <div class="grid-info">
-            <div class="box skeleton" id="skeleton-box1"><div class="box-title">Статус</div><div class="box-data" id="statusDisplay" style="color:#ff4d4d"><span class="status-ring"></span> Не активен</div></div>
-            <div class="box skeleton" id="skeleton-box2">
-                <div class="box-title">Доступно</div>
-                <div class="box-data" id="daysDisplay">0 дней</div>
+        <div class="status-row">
+            <div class="status-card skeleton" id="skeleton-box1">
+                <div class="status-title">Статус</div>
+                <div class="status-val" id="statusDisplay" style="color:#ff4d4d"><span class="status-ring"></span> Не активен</div>
+            </div>
+            <div class="days-card skeleton" id="skeleton-box2">
+                <div class="days-title">Доступно</div>
+                <div class="days-val" id="daysDisplay">0 дней</div>
                 <div class="sub-progress-bg"><div class="sub-progress-fill" id="subBar"></div></div>
             </div>
         </div>
-        
-        <button class="btn btn-rocket" id="rocketBtn">
-            <span class="rocket-icon">🚀</span>
-            ПОДКЛЮЧИТЬ VPN
-        </button>
-        
-        <button class="btn btn-vpn" onclick="event.stopPropagation(); openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
-        <button class="btn btn-pay" onclick="event.stopPropagation(); openWorkNotice()">💳 ПОПОЛНИТЬ БАЛАНС</button>
-        <button class="btn btn-ref" id="refBtn">👥 РЕФЕРАЛЬНАЯ ПРОГРАММА</button>
-        
-        <a href="https://t.me/SuperRocketSupport" class="btn btn-support">💬 Обратная связь с поддержкой</a>
+        <div class="btns-block">
+            <button class="btn btn-rocket" id="rocketBtn"><span class="rocket-icon">🚀</span>ПОДКЛЮЧИТЬ VPN</button>
+            <button class="btn btn-vpn" onclick="event.stopPropagation(); openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
+            <button class="btn btn-pay" onclick="event.stopPropagation(); openWorkNotice()">💳 ПОПОЛНИТЬ БАЛАНС</button>
+            <button class="btn btn-ref" id="refBtn">👥 РЕФЕРАЛЬНАЯ ПРОГРАММА</button>
+            <a href="https://t.me/SuperRocketSupport" class="btn btn-support">💬 Обратная связь с поддержкой</a>
+        </div>
     </div>
 
     <script>
