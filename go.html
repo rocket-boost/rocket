@@ -5,38 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rocket VPN - Подключение</title>
     <style>
-        body { 
-            background: #0b0e14; 
-            color: white; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            margin: 0; 
+        body {
+            background: #0b0e14;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
         }
-        .card { 
-            background: #161b22; 
-            padding: 40px 30px; 
-            border-radius: 24px; 
-            border: 1px solid rgba(0, 223, 216, 0.3); 
-            width: 85%; 
-            max-width: 350px; 
+        .card {
+            background: #161b22;
+            padding: 40px 30px;
+            border-radius: 24px;
+            border: 1px solid rgba(0, 223, 216, 0.3);
+            width: 85%;
+            max-width: 350px;
             text-align: center;
         }
-        .btn { 
-            background: #00dfd8; 
-            color: #0b0e14; 
-            padding: 18px; 
-            border-radius: 16px; 
-            font-weight: bold; 
-            width: 100%; 
-            border: none; 
-            cursor: pointer; 
+        .btn {
+            background: #00dfd8;
+            color: #0b0e14;
+            padding: 18px;
+            border-radius: 16px;
+            font-weight: bold;
+            width: 100%;
+            border: none;
+            cursor: pointer;
             font-size: 17px;
             box-shadow: 0 4px 15px rgba(0, 223, 216, 0.3);
         }
         .status-msg { margin-top: 20px; font-size: 13px; color: #58a6ff; }
+        .sub-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #00dfd8;
+            background: #0b0e14;
+            color: #00dfd8;
+            font-size: 11px;
+            border-radius: 8px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -49,6 +60,8 @@
     </div>
 
     <script>
+        let currentSubUrl = '';
+
         async function superImport() {
             const status = document.getElementById('status');
             const urlParams = new URLSearchParams(window.location.search);
@@ -59,37 +72,98 @@
                 return;
             }
 
-            // 1. Декодируем
-            const rawVless = atob(enc);
+            // 1. Декодируем — получаем subscription URL
+            currentSubUrl = atob(enc);
+            
+            console.log("Subscription URL:", currentSubUrl);
 
             // 2. Копируем в буфер
             try {
-                await navigator.clipboard.writeText(rawVless);
+                await navigator.clipboard.writeText(currentSubUrl);
             } catch (e) {
-                // Фолбэк для старых браузеров
                 const el = document.createElement('textarea');
-                el.value = rawVless;
+                el.value = currentSubUrl;
                 document.body.appendChild(el);
                 el.select();
                 document.execCommand('copy');
                 document.body.removeChild(el);
             }
 
+            // 3. Определяем устройство
+            const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+
             status.innerText = "Запуск Happ...";
 
-            // 3. Открываем Happ с subscription URL
-            // Формат как у капибары: happ://add/https://domain/token
-            window.location.href = `happ://add/${encodeURIComponent(rawVless)}`;
+            if (isMobile) {
+                // Мобильное устройство — открываем happ://
+                window.location.href = `happ://add/${encodeURIComponent(currentSubUrl)}`;
+                
+                setTimeout(() => {
+                    window.location.href = `happ://add/${encodeURIComponent(currentSubUrl)}`;
+                }, 500);
 
-            // Фолбэк через 500мс
-            setTimeout(() => {
-                window.location.href = `happ://add/${encodeURIComponent(rawVless)}`;
-            }, 500);
+                setTimeout(() => {
+                    status.innerHTML = "✅ Готово!<br><br>Если Happ не открылся — откройте приложение и нажмите <b>'Из буфера'</b>.";
+                }, 1500);
+            } else {
+                // ПК — пробуем через <a> тег
+                openHappOnPc();
+                
+                setTimeout(() => {
+                    showPcInstructions();
+                }, 1000);
+            }
+        }
 
-            // Финальное сообщение
+        function openHappOnPc() {
+            const encodedUrl = encodeURIComponent(currentSubUrl);
+            
+            // Метод 1: happ://add/URL
+            const a = document.createElement('a');
+            a.href = `happ://add/${encodedUrl}`;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            // Метод 2: happ://import?url=URL
             setTimeout(() => {
-                status.innerHTML = "✅ Готово!<br><br>Если Happ не открылся — откройте приложение и нажмите <b>'Из буфера'</b>.";
-            }, 1500);
+                const a2 = document.createElement('a');
+                a2.href = `happ://import?url=${encodedUrl}`;
+                a2.style.display = 'none';
+                document.body.appendChild(a2);
+                a2.click();
+                document.body.removeChild(a2);
+            }, 300);
+        }
+
+        function showPcInstructions() {
+            const status = document.getElementById('status');
+            status.innerHTML = `
+                🔗 <b>Ваша подписка:</b><br><br>
+                <input type="text" id="subInput" class="sub-input" value="${currentSubUrl}" readonly onclick="this.select()">
+                <br>
+                <button onclick="copyAndOpen()" class="btn" style="margin-top:10px;">
+                    📋 Скопировать и открыть Happ
+                </button>
+                <br><br>
+                <small style="color:#8b949e;">
+                    Если Happ не открылся:<br>
+                    1. Скопируйте ссылку выше<br>
+                    2. Откройте Happ<br>
+                    3. Вставьте в "Добавить подписку"
+                </small>
+            `;
+        }
+
+        function copyAndOpen() {
+            const input = document.getElementById('subInput');
+            input.select();
+            document.execCommand('copy');
+            
+            openHappOnPc();
+            
+            alert('✅ Ссылка скопирована!\n\nЕсли Happ не открылся — вставьте ссылку вручную.');
         }
     </script>
 </body>
