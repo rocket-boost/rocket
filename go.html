@@ -64,32 +64,51 @@
             
             console.log("Subscription URL:", subUrl);
 
-            // 2. Копируем в буфер (на случай если Happ не откроется)
+            status.innerText = "Загрузка конфигурации...";
+
             try {
-                await navigator.clipboard.writeText(subUrl);
-            } catch (e) {
-                const el = document.createElement('textarea');
-                el.value = subUrl;
-                document.body.appendChild(el);
-                el.select();
-                document.execCommand('copy');
-                document.body.removeChild(el);
+                // 2. Скачиваем vless:// ссылку с нашего API
+                const response = await fetch(subUrl, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки: ' + response.status);
+                }
+                
+                // 3. Получаем vless:// ссылку из ответа
+                const vlessUrl = await response.text();
+                console.log("VLESS URL:", vlessUrl);
+
+                // 4. Копируем в буфер
+                try {
+                    await navigator.clipboard.writeText(vlessUrl);
+                } catch (e) {
+                    const el = document.createElement('textarea');
+                    el.value = vlessUrl;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(el);
+                }
+
+                status.innerText = "Запуск Happ...";
+
+                // 5. Открываем Happ через vless:// протокол
+                setTimeout(() => {
+                    window.location.href = vlessUrl;
+                }, 100);
+
+                // Финальное сообщение
+                setTimeout(() => {
+                    status.innerHTML = "✅ Ключ скопирован!<br><br>Откройте Happ и нажмите <b>'Из буфера'</b>.";
+                }, 1500);
+                
+            } catch (error) {
+                console.error("Ошибка:", error);
+                status.innerText = "Ошибка: " + error.message;
             }
-
-            status.innerText = "Запуск Happ...";
-
-            // Открываем Happ с subscription URL
-            window.location.href = `happ://add/${encodeURIComponent(subUrl)}`;
-
-            // Фолбэк через 500мс
-            setTimeout(() => {
-                window.location.href = `happ://add/${encodeURIComponent(subUrl)}`;
-            }, 500);
-
-            // Финальное сообщение
-            setTimeout(() => {
-                status.innerHTML = "✅ Готово!<br><br>Если Happ не открылся — откройте приложение и нажмите <b>'Из буфера'</b>.";
-            }, 1500);
         }
     </script>
 </body>
