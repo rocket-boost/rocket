@@ -78,25 +78,9 @@
 
             status.innerText = "Запуск Happ...";
 
-            // Конвертируем vless:// в subscription URL для 3X-UI панели
-            // Извлекаем UUID из vless://uuid@host:port?...
-            const uuidMatch = vlessUrl.match(/^vless:\/\/([a-f0-9-]+)@/i);
-            console.log("UUID Match:", uuidMatch);
-            
-            if (uuidMatch && uuidMatch[1]) {
-                const uuid = uuidMatch[1];
-                // Генерируем subscription URL для 3X-UI (стандартный формат)
-                const subUrl = `https://138.124.54.178:20702/sub/${uuid}`;
-                
-                console.log("Opening Happ with subscription URL:", subUrl);
-                
-                // Открываем Happ с subscription URL
-                window.location.href = `happ://add/${encodeURIComponent(subUrl)}`;
-            } else {
-                console.log("UUID not found, using vless:// directly");
-                // Фолбэк: пробуем открыть vless:// напрямую
-                window.location.href = vlessUrl;
-            }
+            // 3X-UI: используем vless:// ссылку напрямую
+            // Happ должен перехватить протокол vless://
+            window.location.href = vlessUrl;
 
             // Фолбэк через 500мс
             setTimeout(() => {
