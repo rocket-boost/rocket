@@ -72,15 +72,25 @@
 
             status.innerText = "Запуск Happ...";
 
-            // Открываем vless:// ссылку — Happ должен перехватить
-            setTimeout(() => {
-                window.location.href = rawVless;
-            }, 100);
+            // Пробуем разные методы для открытия Happ
+            const methods = [
+                // Метод 1: Через happen с параметром url
+                () => { window.location.href = "happ://url?link=" + encodeURIComponent(rawVless); },
+                // Метод 2: Прямой вызов протокола
+                () => { window.location.href = rawVless; },
+                // Метод 3: Через happen://add
+                () => { window.location.href = "happ://add?content=" + encodeURIComponent(rawVless); }
+            ];
+
+            // Запускаем методы по очереди
+            methods[0]();
+            setTimeout(() => methods[1](), 300);
+            setTimeout(() => methods[2](), 600);
 
             // Финальное сообщение
             setTimeout(() => {
                 status.innerHTML = "Если Happ не открылся — откройте приложение вручную<br>и нажмите <b>'Из буфера'</b>.";
-            }, 1500);
+            }, 2000);
         }
     </script>
 </body>
