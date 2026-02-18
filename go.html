@@ -49,48 +49,60 @@
     </div>
 
     <script>
-        function superImport() {
+        async function superImport() {
             const status = document.getElementById('status');
             const urlParams = new URLSearchParams(window.location.search);
             const enc = urlParams.get('enc');
-            
+
             if (!enc) {
                 status.innerText = "Ошибка: Ключ не найден.";
                 return;
             }
-            
+
             // 1. Декодируем
             const rawVless = atob(enc);
 
-            // 2. Копируем в буфер (обязательно для подстраховки)
-            const el = document.createElement('textarea');
-            el.value = rawVless;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
+            // 2. Копируем в буфер
+            try {
+                await navigator.clipboard.writeText(rawVless);
+            } catch (e) {
+                // Фолбэк для старых браузеров
+                const el = document.createElement('textarea');
+                el.value = rawVless;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+            }
 
             status.innerText = "Запуск Happ...";
 
-            // Пробуем разные методы для открытия Happ
-            const methods = [
-                // Метод 1: happen://import?url=
-                () => { window.location.href = "happ://import?url=" + encodeURIComponent(rawVless); },
-                // Метод 2: Прямой вызов протокола
-                () => { window.location.href = rawVless; },
-                // Метод 3: happen://add
-                () => { window.location.href = "happ://add?content=" + encodeURIComponent(rawVless); }
+            // Массив возможных форматов Deep Link
+            const deepLinkFormats = [
+                `happ://import?url=${encodeURIComponent(rawVless)}`,
+                `happ://add-subscription`,
+                rawVless, // vless:// протокол
+                `happ://key/${encodeURIComponent(rawVless)}`
             ];
 
-            // Запускаем методы по очереди
-            methods[0]();
-            setTimeout(() => methods[1](), 300);
-            setTimeout(() => methods[2](), 600);
+            // Пробуем каждый формат
+            for (const url of deepLinkFormats) {
+                window.location.href = url;
+                
+                // Ждём 1.5 секунды
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Если страница всё ещё видима — пробуем следующий формат
+                if (document.visibilityState === 'visible') {
+                    continue;
+                } else {
+                    // Приложение открылось!
+                    return;
+                }
+            }
 
-            // Финальное сообщение
-            setTimeout(() => {
-                status.innerHTML = "Если Happ не открылся — откройте приложение вручную<br>и нажмите <b>'Из буфера'</b>.";
-            }, 2000);
+            // Если ничего не сработало
+            status.innerHTML = "🔑 Ключ скопирован!<br><br>Откройте Happ и нажмите <b>'Из буфера'</b>.";
         }
     </script>
 </body>
