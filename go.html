@@ -64,7 +64,7 @@
             
             console.log("VLESS URL:", vlessUrl);
 
-            // 2. Копируем vless:// в буфер
+            // 2. Копируем в буфер
             try {
                 await navigator.clipboard.writeText(vlessUrl);
             } catch (e) {
@@ -78,18 +78,22 @@
 
             status.innerText = "Запуск Happ...";
 
-            // 3X-UI: используем vless:// ссылку напрямую
-            // Happ должен перехватить протокол vless://
-            window.location.href = vlessUrl;
+            // Открываем Happ через vless:// протокол
+            // Happ должен перехватить ссылку
+            const a = document.createElement('a');
+            a.href = vlessUrl;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
 
-            // Фолбэк через 500мс
+            // Фолбэк через 300мс
             setTimeout(() => {
                 window.location.href = vlessUrl;
-            }, 500);
+            }, 300);
 
             // Финальное сообщение
             setTimeout(() => {
-                status.innerHTML = "Готово!<br>Если Happ не открылся — откройте приложение и нажмите <b>'Из буфера'</b>.";
+                status.innerHTML = "✅ Ключ скопирован!<br><br>Откройте Happ и нажмите <b>'Из буфера'</b>.";
             }, 1500);
         }
     </script>
