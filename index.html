@@ -363,7 +363,7 @@
 
     try {
         // Замени IP на свой, если он другой
-        const response = await fetch(http://138.124.54.178:9876/get_user_data?user_id=${userId});
+        const response = await fetch(`http://138.124.54.178:9876/get_user_data?user_id=${userId}`);
         const data = await response.json();
 
         if (data.balance !== undefined) {
@@ -405,5 +405,6 @@ setInterval(refreshBalance, 5000);
     </div>
 </body>
 </html>
+
 
 
