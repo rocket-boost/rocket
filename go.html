@@ -70,27 +70,17 @@
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 3. Кодируем для передачи в URL
-            const configUrl = encodeURIComponent(rawVless);
-
-            // Happ: используем правильную схему с параметром content
-            const a = document.createElement('a');
-            a.href = "happ://import?content=" + configUrl;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-
             status.innerText = "Запуск Happ...";
 
-            // Фолбэк через 500мс
+            // Открываем vless:// ссылку — Happ должен перехватить
             setTimeout(() => {
-                window.location.href = "happ://import?content=" + configUrl;
-            }, 500);
+                window.location.href = rawVless;
+            }, 100);
 
-            // Финальный фолбэк
+            // Финальное сообщение
             setTimeout(() => {
-                status.innerHTML = "Готово!<br>Если приложение не открылось автоматически — откройте Happ и нажмите <b>'Из буфера'</b>.";
-            }, 1200);
+                status.innerHTML = "Если Happ не открылся — откройте приложение вручную<br>и нажмите <b>'Из буфера'</b>.";
+            }, 1500);
         }
     </script>
 </body>
