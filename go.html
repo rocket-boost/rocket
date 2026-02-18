@@ -74,11 +74,11 @@
 
             // Пробуем разные методы для открытия Happ
             const methods = [
-                // Метод 1: Через happen с параметром url
-                () => { window.location.href = "happ://url?link=" + encodeURIComponent(rawVless); },
+                // Метод 1: happen://import?url=
+                () => { window.location.href = "happ://import?url=" + encodeURIComponent(rawVless); },
                 // Метод 2: Прямой вызов протокола
                 () => { window.location.href = rawVless; },
-                // Метод 3: Через happen://add
+                // Метод 3: happen://add
                 () => { window.location.href = "happ://add?content=" + encodeURIComponent(rawVless); }
             ];
 
