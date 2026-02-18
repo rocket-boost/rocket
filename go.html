@@ -70,32 +70,26 @@
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 3. ФОРМАТ КОНКУРЕНТОВ:
-            // Happ лучше всего импортирует через схему sing-box.
-            // Если rawVless - это ссылка на подписку (http), используем это.
-            // Если это vless://, тоже работает.
+            // 3. Кодируем для передачи в URL
             const configUrl = encodeURIComponent(rawVless);
-            
-            // Пробуем несколько методов одновременно для iOS
-            
-            // Метод А: Прямой вызов через скрытую ссылку (самый надежный)
+
+            // Happ: используем правильную схему с параметром content
             const a = document.createElement('a');
-            a.href = "sing-box://import/" + configUrl + "#Rocket%20VPN";
+            a.href = "happ://import?content=" + configUrl;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
 
             status.innerText = "Запуск Happ...";
 
-            // Метод Б: Если А не сработал через 500мс
+            // Фолбэк через 500мс
             setTimeout(() => {
-                window.location.href = "happ://import/" + configUrl;
+                window.location.href = "happ://import?content=" + configUrl;
             }, 500);
 
-            // Метод В: Для совсем старых версий через 1.2 сек
+            // Финальный фолбэк
             setTimeout(() => {
-                window.location.href = rawVless;
-                status.innerHTML = "Готово!<br>Если приложение не открылось автоматически — нажмите в приложении <b>'Из буфера'</b>.";
+                status.innerHTML = "Готово!<br>Если приложение не открылось автоматически — откройте Happ и нажмите <b>'Из буфера'</b>.";
             }, 1200);
         }
     </script>
