@@ -42,7 +42,7 @@
         }
         
         .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
-        .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 15px; text-align: center; position: relative; overflow: hidden; }
+        .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 2px solid #fff; border-radius: 25px; padding: 15px; text-align: center; position: relative; overflow: hidden; }
         
         /* Анимированный блик */
         .card-balance::before {
@@ -64,8 +64,8 @@
 
         .balance-val { font-size: 36px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .ref-card { background: rgba(0, 223, 216, 0.05); border: 1px solid rgba(0, 223, 216, 0.2); border-radius: 20px; padding: 10px; margin-top: 5px; }
-        .ref-val { font-size: 20px; font-weight: 700; color: var(--accent-cyan); }
+        .ref-card { background: rgba(255,255,255,0.08); border: 1px solid #fff; border-radius: 20px; padding: 10px; margin-top: 5px; }
+        .ref-val { font-size: 20px; font-weight: 700; color: #fff; }
 
         .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; text-align: center; position: relative; overflow: hidden; }
@@ -81,8 +81,8 @@
         @keyframes ring-pulse { 0% { box-shadow: 0 0 0 0px rgba(255,255,255,0.4); } 100% { box-shadow: 0 0 0 6px rgba(255,255,255,0); } }
 
         .btn {
-            border: 1px solid rgba(255,255,255,0.7); /* тонкая белая окантовка */
-            box-shadow: 0 0 8px 1px rgba(255,255,255,0.18); /* легкое белое свечение */
+            border: 2px solid #fff; /* более толстая белая окантовка */
+            box-shadow: 0 0 12px 2px rgba(255,255,255,0.22); /* более заметное белое свечение */
             padding: 18px;
             border-radius: 20px;
             font-size: 15px;
@@ -130,7 +130,7 @@
 
         .btn-vpn { background: linear-gradient(45deg, rgba(255, 0, 128, 0.85), rgba(121, 40, 202, 0.85)); }
         .btn-pay { background: linear-gradient(45deg, rgba(0, 223, 216, 0.85), rgba(0, 124, 240, 0.85)); }
-        .btn-ref { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); }
+        .btn-ref { background: rgba(255, 255, 255, 0.08); border: 2px solid #fff; color: #fff; }
         .btn-support { background: rgba(255, 255, 255, 0.12); border: 1px dashed rgba(255, 255, 255, 0.3); font-size: 13px; margin-top: 10px; }
         
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
@@ -224,34 +224,22 @@
             tg.close();
         });
         
-
-
         const params = new URLSearchParams(window.location.search);
         const balance = params.get('balance') || "0";
         const refBalance = params.get('ref_balance') || "0";
-        const minutesParam = params.get('minutes') || "0";
+        const days = params.get('days') || "0";
         const userId = params.get('id') || "---";
 
         document.getElementById('balanceDisplay').innerText = balance + " ₽";
         document.getElementById('refBalanceDisplay').innerText = refBalance + " ₽";
         document.getElementById('userDisplay').innerText = "ID: " + userId;
-
-        // Функция для форматирования минут в дни/часы/минуты (точно)
-        function formatTimeFromMinutes(minStr) {
-            let totalMinutes = parseInt(minStr, 10) || 0;
-            const days = Math.floor(totalMinutes / (24 * 60));
-            const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
-            const minutes = totalMinutes % 60;
-            return days + ' д ' + hours + ' ч ' + minutes + ' м';
-        }
-
-        document.getElementById('daysDisplay').innerText = formatTimeFromMinutes(minutesParam);
+        document.getElementById('daysDisplay').innerText = days + " дней";
 
         // Звуковой эффект
         const launchSound = new Audio('https://www.soundjay.com/nature/sounds/fire-1.mp3'); 
 
         // Логика прогресс-бара (макс 30 дней для примера)
-        const dayVal = parseFloat(daysParam);
+        const dayVal = parseInt(days);
         if (dayVal > 0) { 
             document.getElementById('statusDisplay').innerHTML = '<span class="status-ring"></span> Активен'; 
             document.getElementById('statusDisplay').style.color = "#00ff00"; 
@@ -370,4 +358,3 @@
     </div>
 </body>
 </html>
-
