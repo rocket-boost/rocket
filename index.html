@@ -260,7 +260,7 @@
         document.getElementById('refBtn').onclick = function() {
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
             tg.sendData(JSON.stringify({action: 'ref_program'}));
-            tg.close();
+            setTimeout(() => { tg.close(); }, 100);
         };
 
         document.getElementById('rocketBtn').onclick = function() {
