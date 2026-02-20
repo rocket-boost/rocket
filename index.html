@@ -183,14 +183,10 @@
     
     <div class="main-container">
         <div class="card-balance">
-            <div style="font-size: 12px; opacity: 0.8;">Основной баланс</div>
-            <div class="balance-val" id="balanceDisplay">0.00 ₽</div>
-            
             <div class="ref-card">
                 <div style="font-size: 10px; text-transform: uppercase; opacity: 0.7;">Реферальный бонус</div>
                 <div class="ref-val" id="refBalanceDisplay">0.00 ₽</div>
             </div>
-            
             <div style="font-size: 10px; opacity: 0.5; margin-top: 10px;" id="userDisplay">ID: ---</div>
         </div>
 
@@ -209,7 +205,6 @@
         </button>
         
         <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
-        <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
         <button class="btn btn-ref" id="refBtn">👥 РЕФЕРАЛЬНАЯ ПРОГРАММА</button>
         
         <a href="https://t.me/SuperRocketSupport" class="btn btn-support">💬 Обратная связь с поддержкой</a>
@@ -225,12 +220,10 @@
         });
         
         const params = new URLSearchParams(window.location.search);
-        const balance = params.get('balance') || "0";
         const refBalance = params.get('ref_balance') || "0";
         const days = params.get('days') || "0";
         const userId = params.get('id') || "---";
 
-        document.getElementById('balanceDisplay').innerText = balance + " ₽";
         document.getElementById('refBalanceDisplay').innerText = refBalance + " ₽";
         document.getElementById('userDisplay').innerText = "ID: " + userId;
         document.getElementById('daysDisplay').innerText = days + " дней";
@@ -300,19 +293,10 @@
 
         function confirmBuy(m, p) {
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            if (parseFloat(balance) < p) {
-                tg.showConfirm("Недостаточно средств! Перейти к пополнению баланса?", (ok) => {
-                    if (ok) {
-                        closeAll();
-                        openAmountModal();
-                    }
-                });
-                return;
-            }
-            
             tg.showConfirm(`Вы уверены, что хотите выбрать тариф на ${m} мес. за ${p} ₽?`, (ok) => {
                 if (ok) {
-                    handleLaunch({action: "buy_subscription", months: m, price: p});
+                    tg.sendData(JSON.stringify({action: "deposit", amount: p}));
+                    tg.close();
                 }
             });
         }
@@ -350,11 +334,6 @@
         <div class="pay-option" onclick="confirmBuy(12, 1599)"><span>12 месяцев - 1599 ₽</span> <span class="badge-sale">ВЫГОДА 33%</span></div>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
     </div>
-    <div class="modal" id="amountModal">
-        <div style="text-align:center; margin-bottom:15px; font-size:14px;">Введите сумму пополнения</div>
-        <input type="number" id="sumInput" placeholder="Сумма (₽)" min="10">
-        <button class="btn btn-pay" onclick="sendPayment()">ПЕРЕЙТИ К ОПЛАТЕ</button>
-        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
-    </div>
+
 </body>
 </html>
