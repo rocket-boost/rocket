@@ -183,14 +183,11 @@
     
     <div class="main-container">
         <div class="card-balance">
-            <div style="font-size: 12px; opacity: 0.8;">Основной баланс</div>
-            <div class="balance-val" id="balanceDisplay">0.00 ₽</div>
-            
             <div class="ref-card">
                 <div style="font-size: 10px; text-transform: uppercase; opacity: 0.7;">Реферальный бонус</div>
                 <div class="ref-val" id="refBalanceDisplay">0.00 ₽</div>
             </div>
-            
+
             <div style="font-size: 10px; opacity: 0.5; margin-top: 10px;" id="userDisplay">ID: ---</div>
         </div>
 
@@ -209,7 +206,6 @@
         </button>
         
         <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
-        <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
         <button class="btn btn-ref" id="refBtn">👥 РЕФЕРАЛЬНАЯ ПРОГРАММА</button>
         
         <a href="https://t.me/SuperRocketSupport" class="btn btn-support">💬 Обратная связь с поддержкой</a>
@@ -272,49 +268,21 @@
             handleLaunch({action: 'request_vpn_button'});
         };
 
-        function openTariffModal() { 
+        function openTariffModal() {
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            closeAll(); 
-            document.getElementById('tariffModal').classList.add('active'); 
-        }
-        function openAmountModal() { 
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            closeAll(); 
-            document.getElementById('amountModal').classList.add('active'); 
+            closeAll();
+            document.getElementById('tariffModal').classList.add('active');
         }
         function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
-        
-        function sendPayment() {
-            const val = document.getElementById('sumInput').value;
-            if(!val || isNaN(val) || parseInt(val) <= 0) {
-                tg.showAlert("Введите корректную сумму пополнения");
-                return;
-            }
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            tg.sendData(JSON.stringify({
-                action: "deposit",
-                amount: parseInt(val)
-            }));
-            tg.close();
-        }
 
         function confirmBuy(m, p) {
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            if (parseFloat(balance) < p) {
-                tg.showConfirm("Недостаточно средств! Перейти к пополнению баланса?", (ok) => {
-                    if (ok) {
-                        closeAll();
-                        openAmountModal();
-                    }
-                });
-                return;
-            }
-            
-            tg.showConfirm(`Вы уверены, что хотите выбрать тариф на ${m} мес. за ${p} ₽?`, (ok) => {
-                if (ok) {
-                    handleLaunch({action: "buy_subscription", months: m, price: p});
-                }
-            });
+            tg.sendData(JSON.stringify({
+                action: "buy_subscription",
+                months: m,
+                price: p
+            }));
+            tg.close();
         }
 
         const container = document.getElementById('stars');
@@ -349,12 +317,6 @@
         <div class="pay-option" onclick="confirmBuy(6, 899)"><span>6 месяцев - 899 ₽</span> <span class="badge-sale">ВЫГОДА 25%</span></div>
         <div class="pay-option" onclick="confirmBuy(12, 1599)"><span>12 месяцев - 1599 ₽</span> <span class="badge-sale">ВЫГОДА 33%</span></div>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
-    </div>
-    <div class="modal" id="amountModal">
-        <div style="text-align:center; margin-bottom:15px; font-size:14px;">Введите сумму пополнения</div>
-        <input type="number" id="sumInput" placeholder="Сумма (₽)" min="10">
-        <button class="btn btn-pay" onclick="sendPayment()">ПЕРЕЙТИ К ОПЛАТЕ</button>
-        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
     </div>
 </body>
 </html>
