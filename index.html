@@ -8,7 +8,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
-        body { margin: 0; padding: 20px; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; min-height: 100vh; }
+        body { margin: 0; padding: 20px; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow-y: auto; min-height: 100vh; }
         
         .stars-container { position: fixed; top: -10%; left: -10%; width: 120%; height: 120%; z-index: -1; transition: transform 0.1s ease-out; }
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; }
@@ -42,7 +42,7 @@
         }
         
         .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
-        .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 15px; text-align: center; position: relative; overflow: hidden; }
+        .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 2px solid #fff; border-radius: 25px; padding: 15px; text-align: center; position: relative; overflow: hidden; }
         
         /* Анимированный блик */
         .card-balance::before {
@@ -64,8 +64,8 @@
 
         .balance-val { font-size: 36px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .ref-card { background: rgba(0, 223, 216, 0.05); border: 1px solid rgba(0, 223, 216, 0.2); border-radius: 20px; padding: 10px; margin-top: 5px; }
-        .ref-val { font-size: 20px; font-weight: 700; color: var(--accent-cyan); }
+        .ref-card { background: rgba(255,255,255,0.08); border: 1px solid #fff; border-radius: 20px; padding: 10px; margin-top: 5px; }
+        .ref-val { font-size: 20px; font-weight: 700; color: #fff; }
 
         .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; text-align: center; position: relative; overflow: hidden; }
@@ -80,7 +80,26 @@
         .status-ring { width: 8px; height: 8px; border-radius: 50%; border: 2px solid currentColor; display: inline-block; animation: ring-pulse 1.5s infinite; }
         @keyframes ring-pulse { 0% { box-shadow: 0 0 0 0px rgba(255,255,255,0.4); } 100% { box-shadow: 0 0 0 6px rgba(255,255,255,0); } }
 
-        .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; text-decoration: none; display: block; text-align: center; box-sizing: border-box; position: relative; opacity: 0.92; }
+        .btn {
+            border: 2px solid #fff; /* более толстая белая окантовка */
+            box-shadow: 0 0 12px 2px rgba(255,255,255,0.22); /* более заметное белое свечение */
+            padding: 18px;
+            border-radius: 20px;
+            font-size: 15px;
+            font-weight: 800;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+            margin-top: 5px;
+            -webkit-tap-highlight-color: transparent;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            box-sizing: border-box;
+            position: relative;
+            opacity: 0.92;
+        }
         
         /* Интерактивность кнопок */
         .btn:active { transform: scale(0.96); opacity: 1; }
@@ -111,7 +130,7 @@
 
         .btn-vpn { background: linear-gradient(45deg, rgba(255, 0, 128, 0.85), rgba(121, 40, 202, 0.85)); }
         .btn-pay { background: linear-gradient(45deg, rgba(0, 223, 216, 0.85), rgba(0, 124, 240, 0.85)); }
-        .btn-ref { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); }
+        .btn-ref { background: rgba(255, 255, 255, 0.08); border: 2px solid #fff; color: #fff; }
         .btn-support { background: rgba(255, 255, 255, 0.12); border: 1px dashed rgba(255, 255, 255, 0.3); font-size: 13px; margin-top: 10px; }
         
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
@@ -155,19 +174,20 @@
 <body>
     <div id="rocket-overlay"><div class="big-rocket" id="emojiRocket">🚀</div></div>
     <div class="stars-container" id="stars">
-        <div class="shooting-star"></div>
+        <div class="shooting-star" style="top: -10px; left: 10vw; animation-delay: 0s;"></div>
+        <div class="shooting-star" style="top: 5px; left: 60vw; animation-delay: 1.2s;"></div>
+        <div class="shooting-star" style="top: 20px; left: 35vw; animation-delay: 2.1s;"></div>
+        <div class="shooting-star" style="top: 15px; left: 80vw; animation-delay: 0.7s;"></div>
+        <div class="shooting-star" style="top: 30px; left: 50vw; animation-delay: 1.7s;"></div>
     </div>
     
     <div class="main-container">
         <div class="card-balance">
-            <div style="font-size: 12px; opacity: 0.8;">Основной баланс</div>
-            <div class="balance-val" id="balanceDisplay">0.00 ₽</div>
-            
             <div class="ref-card">
                 <div style="font-size: 10px; text-transform: uppercase; opacity: 0.7;">Реферальный бонус</div>
                 <div class="ref-val" id="refBalanceDisplay">0.00 ₽</div>
             </div>
-            
+
             <div style="font-size: 10px; opacity: 0.5; margin-top: 10px;" id="userDisplay">ID: ---</div>
         </div>
 
@@ -184,11 +204,25 @@
             <span class="rocket-icon">🚀</span>
             ПОДКЛЮЧИТЬ VPN
         </button>
-        
+        <div class="modal" id="happStep1">
+            <div style="text-align:center; font-weight:700; margin-bottom:18px;">У вас установлено приложение Happ?</div>
+            <button class="btn btn-pay" id="happYesBtn">Да</button>
+            <button class="btn btn-vpn" id="happNoBtn">Нет</button>
+            <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
+        </div>
+        <div class="modal" id="happStep2">
+            <div style="text-align:center; font-weight:700; margin-bottom:18px;">Выберите ваше устройство и скачайте приложение Happ.<br>После скачивания вернитесь в бот, где вас будет ждать кнопка Активировать и нажмите на нее.<br>VPN будет активирован автоматически.</div>
+            <button class="btn btn-pay" id="iosBtn">IOS</button>
+            <button class="btn btn-vpn" id="androidBtn">Android</button>
+            <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
+        </div>
+        <div class="modal" id="happStep3">
+            <div style="text-align:center; font-weight:700; margin-bottom:18px;">Вы будете перенаправлены в бот для активации VPN</div>
+            <button class="btn btn-pay" id="activateBtn">Активировать VPN</button>
+            <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
+        </div>
         <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
-        <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
         <button class="btn btn-ref" id="refBtn">👥 РЕФЕРАЛЬНАЯ ПРОГРАММА</button>
-        
         <a href="https://t.me/SuperRocketSupport" class="btn btn-support">💬 Обратная связь с поддержкой</a>
     </div>
 
@@ -207,7 +241,6 @@
         const days = params.get('days') || "0";
         const userId = params.get('id') || "---";
 
-        document.getElementById('balanceDisplay').innerText = balance + " ₽";
         document.getElementById('refBalanceDisplay').innerText = refBalance + " ₽";
         document.getElementById('userDisplay').innerText = "ID: " + userId;
         document.getElementById('daysDisplay').innerText = days + " дней";
@@ -242,56 +275,58 @@
         document.getElementById('refBtn').onclick = function() {
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
             tg.sendData(JSON.stringify({action: 'ref_program'}));
-            tg.close();
+            setTimeout(() => { tg.close(); }, 100);
         };
 
         document.getElementById('rocketBtn').onclick = function() {
-            handleLaunch({action: 'request_vpn_button'});
+            closeAll();
+            document.getElementById('happStep1').classList.add('active');
         };
 
-        function openTariffModal() { 
+        document.getElementById('happYesBtn').onclick = function() {
+            closeAll();
+            document.getElementById('happStep3').classList.add('active');
+        };
+
+        document.getElementById('happNoBtn').onclick = function() {
+            closeAll();
+            document.getElementById('happStep2').classList.add('active');
+        };
+
+        document.getElementById('iosBtn').onclick = function() {
+            window.open('https://apps.apple.com/ru/app/happ-proxy-utility-plus/id6746188973', '_blank');
+            closeAll();
+            tg.sendData(JSON.stringify({action: 'request_vpn_button'}));
+            setTimeout(() => { tg.close(); }, 300);
+        };
+
+        document.getElementById('androidBtn').onclick = function() {
+            window.open('https://play.google.com/store/apps/details?id=com.happproxy', '_blank');
+            closeAll();
+            tg.sendData(JSON.stringify({action: 'request_vpn_button'}));
+            setTimeout(() => { tg.close(); }, 300);
+        };
+
+        document.getElementById('activateBtn').onclick = function() {
+            tg.sendData(JSON.stringify({action: 'request_vpn_button'}));
+            tg.close();
+        };
+
+        function openTariffModal() {
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            closeAll(); 
-            document.getElementById('tariffModal').classList.add('active'); 
-        }
-        function openAmountModal() { 
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            closeAll(); 
-            document.getElementById('amountModal').classList.add('active'); 
+            closeAll();
+            document.getElementById('tariffModal').classList.add('active');
         }
         function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
-        
-        function sendPayment() {
-            const val = document.getElementById('sumInput').value;
-            if(!val || isNaN(val) || parseInt(val) <= 0) {
-                tg.showAlert("Введите корректную сумму пополнения");
-                return;
-            }
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            tg.sendData(JSON.stringify({
-                action: "deposit",
-                amount: parseInt(val)
-            }));
-            tg.close();
-        }
 
         function confirmBuy(m, p) {
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            if (parseFloat(balance) < p) {
-                tg.showConfirm("Недостаточно средств! Перейти к пополнению баланса?", (ok) => {
-                    if (ok) {
-                        closeAll();
-                        openAmountModal();
-                    }
-                });
-                return;
-            }
-            
-            tg.showConfirm(`Вы уверены, что хотите выбрать тариф на ${m} мес. за ${p} ₽?`, (ok) => {
-                if (ok) {
-                    handleLaunch({action: "buy_subscription", months: m, price: p});
-                }
-            });
+            tg.sendData(JSON.stringify({
+                action: "buy_subscription",
+                months: m,
+                price: p
+            }));
+            tg.close();
         }
 
         const container = document.getElementById('stars');
@@ -326,12 +361,6 @@
         <div class="pay-option" onclick="confirmBuy(6, 899)"><span>6 месяцев - 899 ₽</span> <span class="badge-sale">ВЫГОДА 25%</span></div>
         <div class="pay-option" onclick="confirmBuy(12, 1599)"><span>12 месяцев - 1599 ₽</span> <span class="badge-sale">ВЫГОДА 33%</span></div>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
-    </div>
-    <div class="modal" id="amountModal">
-        <div style="text-align:center; margin-bottom:15px; font-size:14px;">Введите сумму пополнения</div>
-        <input type="number" id="sumInput" placeholder="Сумма (₽)" min="10">
-        <button class="btn btn-pay" onclick="sendPayment()">ПЕРЕЙТИ К ОПЛАТЕ</button>
-        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
     </div>
 </body>
 </html>
